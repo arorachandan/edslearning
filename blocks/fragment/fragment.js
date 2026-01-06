@@ -4,6 +4,7 @@
  * https://www.aem.live/developer/block-collection/fragment
  */
 
+// eslint-disable-next-line import/no-cycle
 import {
   decorateMain,
 } from '../../scripts/scripts.js';
@@ -18,7 +19,7 @@ import {
  * @returns {HTMLElement} The root element of the fragment
  */
 export async function loadFragment(path) {
-  if (path) { //  && path.startsWith('/')
+  if (path && path.startsWith('/')) {
     const resp = await fetch(`${path}.plain.html`);
     if (resp.ok) {
       const main = document.createElement('main');

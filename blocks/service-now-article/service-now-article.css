@@ -1,0 +1,102 @@
+.sn-content {
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.sn-content p {
+  margin-bottom: 12px;
+}
+
+/* ===== FULL PAGE ===== */
+.sn-full-page {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 20px;
+}
+
+/* ===== BUTTON ===== */
+.sn-btn {
+  background: #0057d8;
+  color: #fff;
+  border: none;
+  padding: 10px 18px;
+  cursor: pointer;
+}
+
+/* ===== MODAL ===== */
+.sn-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgb(0 0 0 / 60%);
+  display: none;
+  z-index: 1000;
+}
+
+.sn-modal-overlay.open {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sn-modal {
+  background: #fff;
+  width: min(900px, 90vw);
+  max-height: 90%;
+  border-radius: 8px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.sn-modal .sn-content {
+  padding: 24px;
+  overflow-y: auto;
+  max-height: calc(85vh - 60px);
+}
+
+.sn-close {
+  position: sticky;
+  top: 0;
+  align-self: flex-end;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 12px 16px;
+  background: #fff;
+  z-index: 2;
+  border-radius: 8px;
+}
+
+/* ===== COLLAPSIBLE ===== */
+.sn-collapsible {
+  padding: 16px;
+  margin: 20px 0;
+}
+
+.sn-collapsible-header {
+  width: 100%;
+  background: none;
+  border: none;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+}
+
+.sn-collapsible-body {
+  display: none;
+  margin-top: 12px;
+}
+
+.sn-collapsible-body.open {
+  display: block;
+}
+
+/* ===== COLORS ===== */
+.bg-botany-blue-light-color { background: #F0F4FC; }
+.bg-clawed-beak-yellow-light-color { background: #FDF7EC; }
+.bg-district-gray-light-color { background: #F4F6F7; }
+.bg-embassy-blue-light-color { background: #D8E4EF; }
+.bg-indigo-purple-light-color { background: #4918cd; }
+.bg-mckinley-green-light-color { background: #E5F5F2; }
+.bg-metro-silver-light-color { background: #EEEFF2; }
+.bg-tenleytown-red-light-color { background: #F8E6E8; }
