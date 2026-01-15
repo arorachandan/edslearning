@@ -86,12 +86,21 @@
       "table",
       "dropForm",
       "miniDropForm",
+      "nomination-form",
+      "cediplomaValidationForm",
       "directory-form",
       "textSearchForm",
       "programFinderSearch",
       "calendar",
       "programRankList",
       "event-listing",
+      "magazineHeader",
+      "programFinderSearchResults",
+      "magazineArticle",
+      "magazineIssue",
+      "au-experts-search-results",
+      "emergency-notification",
+      "emergency-notification-details",
       "service-now-article"
     ]
   },
@@ -395,7 +404,8 @@
       "wclWidget",
       "htmlEmbed",
       "description-list",
-      "table"
+      "table",
+      "magazineIssue"
     ]
   },
   {
@@ -471,6 +481,13 @@
       "description-list",
       "table",
       "event-listing",
+      "programFinderSearchResults",
+      "au-experts-search-results",
+      "magazineArticle",
+      "magazineIssue",
+      "magazineHeader",
+      "emergency-notification",
+      "emergency-notification-details",
       "service-now-article"
     ]
   },
@@ -547,6 +564,13 @@
       "description-list",
       "table",
       "event-listing",
+      "programFinderSearchResults",
+      "au-experts-search-results",
+      "magazineArticle",
+      "magazineIssue",
+      "magazineHeader",
+      "emergency-notification",
+      "emergency-notification-details",
       "service-now-article"
     ]
   },
@@ -623,7 +647,9 @@
       "description-list",
       "table",
       "dropForm",
+      "cediplomaValidationForm",
       "miniDropForm",
+      "nomination-form",
       "textSearchForm"
     ]
   },

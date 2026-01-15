@@ -28,19 +28,91 @@ async function fetchGraphQLData(queryName, path) {
   }
 }
 
-async function fetchCalendarGQL(queryName, eventStartDate, eventEndDate, visibilityLevel, visibilityApproved, date, visbleRequested, visibleApproved) {
+async function fetchCalendarGQL(queryName, eventStartDate, eventEndDate, visibilityLevel, visibilityApproved, date, visbleRequested, visibleApproved, groupId, eventTypeId, location) {
   try {
-    // const username = 'admin';
-    // const password = 'admin'; // example only
-
-    // const authHeader = `Basic ${btoa(`${username}:${password}`)}`;
     const cacheBuster = `_cb=${Date.now()}`;
-    const GRAPHQL_ENDPOINT_PATH = `${GRAPHQL_ENDPOINT}/${queryName}%3BeventStart%3D${eventStartDate}%3BeventEnd%3D${eventEndDate}%3BvisibilityLevel%3D${visibilityLevel}%3BvisibilityApproved%3D${visibilityApproved}%3Bdate%3D${date}%3BvisbleRequested%3D${visbleRequested}%3BvisibleApproved%3D${visibleApproved}?${cacheBuster}`;
+
+    const paramParts = [
+      `eventStart%3D${encodeURIComponent(eventStartDate)}`,
+      `eventEnd%3D${encodeURIComponent(eventEndDate)}`,
+      `visibilityLevel%3D${encodeURIComponent(visibilityLevel)}`,
+      `visibilityApproved%3D${encodeURIComponent(visibilityApproved)}`,
+      `date%3D${encodeURIComponent(date)}`,
+      `visbleRequested%3D${encodeURIComponent(visbleRequested)}`,
+      `visibleApproved%3D${encodeURIComponent(visibleApproved)}`,
+    ];
+
+    if (groupId != null && groupId !== '') {
+      paramParts.push(`groupId%3D${encodeURIComponent(groupId)}`);
+    }
+    if (eventTypeId != null && eventTypeId !== '') {
+      paramParts.push(`eventTypeId%3D${encodeURIComponent(eventTypeId)}`);
+    }
+    if (location != null && location !== '') {
+      paramParts.push(`location%3D${encodeURIComponent(location)}`);
+    }
+
+    const paramString = paramParts.length > 0 ? `%3B${paramParts.join('%3B')}` : '';
+
+    const GRAPHQL_ENDPOINT_PATH = `${GRAPHQL_ENDPOINT}/${queryName}${paramString}?${cacheBuster}`;
     const response = await fetch(GRAPHQL_ENDPOINT_PATH, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        // Authorization: authHeader,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Network error: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+
+    if (data.errors) {
+      return { error: 'An error occurred during the request.', data: null };
+    }
+
+    return { data };
+  } catch (error) {
+    return { error: 'An unexpected error occurred.', data: null };
+  }
+}
+
+async function fetchEmergencyNotificationData(queryName, currentTime) {
+  try {
+    const cacheBuster = `_cb=${Date.now()}`;
+    const GRAPHQL_ENDPOINT_PATH = `${GRAPHQL_ENDPOINT}/${queryName}%3Bnow%3D${currentTime}?${cacheBuster}`;
+    const response = await fetch(GRAPHQL_ENDPOINT_PATH, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Network error: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+
+    if (data.errors) {
+      return { error: 'An error occurred during the request.', data: null };
+    }
+
+    return { data };
+  } catch (error) {
+    return { error: 'An unexpected error occurred.', data: null };
+  }
+}
+
+async function fetchEmergencyNotificationDataFromId(queryName, id) {
+  try {
+    const cacheBuster = `_cb=${Date.now()}`;
+    const GRAPHQL_ENDPOINT_PATH = `${GRAPHQL_ENDPOINT}/${queryName}%3Bid%3D${id}?${cacheBuster}`;
+    const response = await fetch(GRAPHQL_ENDPOINT_PATH, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
       },
     });
 
@@ -81,9 +153,59 @@ export async function fetchComponentData(name, path) {
   return result;
 }
 
-export async function fetchCalendarData(name, eventStartDate, eventEndDate, visibilityLevel, visibilityApproved, date, visbleRequested, visibleApproved) {
-  const { data, error } = await fetchCalendarGQL(name, eventStartDate, eventEndDate, visibilityLevel, visibilityApproved, date, visbleRequested, visibleApproved);
+export async function fetchCalendarData(name, eventStartDate, eventEndDate, visibilityLevel, visibilityApproved, date, visbleRequested, visibleApproved, groupId, eventTypeId, location) {
+  const { data, error } = await fetchCalendarGQL(name, eventStartDate, eventEndDate, visibilityLevel, visibilityApproved, date, visbleRequested, visibleApproved, groupId, eventTypeId, location);
   if (error) return { data: null };
   const result = data.data || null;
   return result;
+}
+
+// eslint-disable-next-line max-len
+async function fetchEventsGQL(queryName, eventStartDate, eventEndDate, visibilityLevel, visibilityApproved) {
+  try {
+    const cacheBuster = `_cb=${Date.now()}`;
+    const GRAPHQL_ENDPOINT_PATH = `${GRAPHQL_ENDPOINT}/${queryName}%3BeventStart%3D${eventStartDate}%3BeventEnd%3D${eventEndDate}%3BvisibilityLevel%3D${visibilityLevel}%3BvisibilityApproved%3D${visibilityApproved}?${cacheBuster}`;
+
+    const response = await fetch(GRAPHQL_ENDPOINT_PATH, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Network error: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+
+    if (data.errors) {
+      return { error: 'An error occurred during the request.', data: null };
+    }
+
+    return { data };
+  } catch (error) {
+    return { error: 'An unexpected error occurred.', data: null };
+  }
+}
+
+// eslint-disable-next-line max-len
+export async function fetchCalendarEventsData(name, eventStartDate, eventEndDate, visibilityLevel, visibilityApproved) {
+  // eslint-disable-next-line max-len
+  const { data, error } = await fetchEventsGQL(name, eventStartDate, eventEndDate, visibilityLevel, visibilityApproved);
+  if (error) return { data: null };
+  const result = data.data || null;
+  return result;
+}
+
+export async function fetchEmergencyNotifications(name, id) {
+  if (id) {
+    const { data, error } = await fetchEmergencyNotificationDataFromId(name, id);
+    if (error) return { data: null };
+    return data;
+  }
+  const currentTime = new Date().toISOString();
+  const { data, error } = await fetchEmergencyNotificationData(name, currentTime);
+  if (error) return { data: null };
+  return data;
 }

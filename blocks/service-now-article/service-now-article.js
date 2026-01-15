@@ -1,3 +1,5 @@
+import { SERVER_URL } from '../../scripts/constants.js';
+
 function decodeHtml(html) {
   const txt = document.createElement('textarea');
   txt.innerHTML = html;
@@ -32,7 +34,10 @@ function extractData(block) {
   });
 
   return {
-    articleNumber: data.serviceNowArticleNumber,
+    articleNumbers: data.serviceNowArticleNumber
+      ?.split(',')
+      .map((v) => v.trim())
+      .filter(Boolean),
     apiResponse: data.apiResponse,
     displaySelection: data.displaySelection,
     color: data.color,
@@ -45,9 +50,16 @@ function renderFullPage(data) {
   const section = document.createElement('section');
   section.className = 'sn-article sn-full-page';
 
+  if (data.title) {
+    const heading = document.createElement('h2');
+    heading.className = 'sn-title';
+    heading.textContent = data.title;
+    section.appendChild(heading);
+  }
+
   const content = document.createElement('div');
   content.className = 'sn-content';
-  content.innerHTML = data.apiResponse;
+  content.innerHTML = data.desc;
 
   section.appendChild(content);
   return section;
@@ -60,8 +72,17 @@ function renderModal(data) {
   wrapper.className = 'sn-modal-wrapper';
 
   const btn = document.createElement('button');
-  btn.className = 'sn-btn';
-  btn.textContent = 'View Article';
+  btn.className = 'sn-info-btn';
+
+  const icon = document.createElement('span');
+  icon.className = 'sn-info-icon';
+  icon.textContent = 'i';
+
+  const text = document.createElement('span');
+  text.className = 'sn-info-text';
+  text.textContent = 'more info';
+
+  btn.append(icon, text);
 
   const overlay = document.createElement('div');
   overlay.className = 'sn-modal-overlay';
@@ -69,18 +90,30 @@ function renderModal(data) {
   const modal = document.createElement('div');
   modal.className = 'sn-modal';
 
-  const close = document.createElement('span');
-  close.className = 'sn-close';
-  close.textContent = '×';
+  /* ===== HEADER ===== */
+  const header = document.createElement('div');
+  header.className = `sn-modal-header ${data.color || ''}`;
 
+  const title = document.createElement('h2');
+  title.className = 'sn-modal-title';
+  title.textContent = data.title || '';
+
+  const close = document.createElement('button');
+  close.className = 'sn-close';
+  close.setAttribute('aria-label', 'Close');
+  close.innerHTML = '&times;';
+
+  header.append(title, close);
+
+  /* ===== BODY ===== */
   const content = document.createElement('div');
   content.className = 'sn-content';
-  content.innerHTML = data.apiResponse;
+  content.innerHTML = data.desc;
 
   btn.onclick = () => overlay.classList.add('open');
   close.onclick = () => overlay.classList.remove('open');
 
-  modal.append(close, content);
+  modal.append(header, content);
   overlay.appendChild(modal);
   wrapper.append(btn, overlay);
 
@@ -95,40 +128,85 @@ function renderCollapsible(data) {
 
   const header = document.createElement('button');
   header.className = 'sn-collapsible-header';
-  header.textContent = 'View Article';
+  header.textContent = data.title || 'View Article';
 
   const body = document.createElement('div');
   body.className = 'sn-collapsible-body';
-  body.innerHTML = data.apiResponse;
+  body.innerHTML = data.desc;
 
-  header.onclick = () => body.classList.toggle('open');
+  // header.onclick = () => body.classList.toggle('open');
+
+  header.onclick = () => {
+    wrapper.classList.toggle('open');
+  };
 
   wrapper.append(header, body);
   return wrapper;
 }
 
-/* ================= DECORATE ================= */
+async function fetchArticleText(articleNumber) {
+  const url = `${SERVER_URL}/content/apis/au/servicenowarticle.${articleNumber}.json`;
 
-export default function decorate(block) {
-  const data = extractData(block);
-  if (!data?.apiResponse) return;
+  try {
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    if (!response.ok) return null;
 
-  let rendered;
+    const json = await response.json();
 
-  switch (data.displaySelection) {
-    case 'fullPage':
-      rendered = renderFullPage(data);
-      break;
-    case 'modalPopup':
-      rendered = renderModal(data);
-      break;
-    case 'collapsible':
-      rendered = renderCollapsible(data);
-      break;
-    default:
-      return;
+    return {
+      title: json.title || 'View Article',
+      desc: json.desc || 'No Article Found.',
+    };
+  } catch (e) {
+    return '';
   }
+}
+
+/* ================= DECORATE ================= */
+export default async function decorate(block) {
+  const data = extractData(block);
+  if (!data?.articleNumbers?.length) return;
 
   block.innerHTML = '';
-  block.appendChild(rendered);
+
+  const articles = await Promise.all(
+    data.articleNumbers.map((articleNumber) => fetchArticleText(articleNumber).then((result) => ({
+      articleNumber,
+      ...result,
+    }))),
+  );
+
+  articles
+    .filter((article) => article?.desc)
+    .forEach((article) => {
+      const articleData = {
+        title: article.title,
+        desc: article.desc,
+        displaySelection: data.displaySelection,
+        color: data.color,
+      };
+
+      let rendered;
+
+      switch (articleData.displaySelection) {
+        case 'fullPage':
+          rendered = renderFullPage(articleData);
+          break;
+        case 'modalPopup':
+          rendered = renderModal(articleData);
+          break;
+        case 'collapsible':
+          rendered = renderCollapsible(articleData);
+          break;
+        default:
+          return;
+      }
+
+      block.appendChild(rendered);
+    });
 }

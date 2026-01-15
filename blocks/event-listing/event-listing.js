@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import { fetchCalendarData } from '../../scripts/graphql-api.js';
 
 function buildHeader(data, currentDateStr) {
@@ -64,6 +65,7 @@ function buildAnnouncements(data) {
 }
 
 function buildEvents(data) {
+  const isUpcoming = data.isUpcoming === true;
   if (!data.events || data.events.length === 0) {
     return '<p class="no-events">No events scheduled for this day.</p>';
   }
@@ -71,21 +73,36 @@ function buildEvents(data) {
   return `
     <div class="au-events">
       ${data.events.map((event) => {
-    const hasDetails = true;
-    const expandable = hasDetails;
+    const expandable = true;
     const safeTitle = event.title.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     const safeLocation = (event.location || '').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     const safeDescription = (event.eventDescription || '').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    const eventDateLabel = isUpcoming ? new Date(event.fullStart).toLocaleDateString('en-US', {
+      weekday: 'short',
+      month: '2-digit',
+      day: '2-digit',
+      year: 'numeric',
+    })
+      : '';
 
     return `
-          <div class="au-event ${expandable ? 'expandable' : ''}" 
+          <div class="au-event ${expandable ? 'expandable' : ''}"
             data-title="${safeTitle}"
             data-fullstart="${event.fullStart}"
             data-fullend="${event.fullEnd}"
             data-location="${safeLocation}"
-            data-description="${safeDescription}">
+            data-description="${safeDescription}"
+            data-eventtypeid="${event.eventTypeId || ''}"
+            data-type="${event.type || ''}"
+            data-groupid="${event.groupId || ''}"
+            data-groupname="${event.groupName || ''}"
+            data-groupdisplayonweb="${event.groupDisplayOnWeb}"
+            data-contactname="${event.contactName || ''}"
+            data-contactemail="${event.contactEmail || ''}"
+            data-contactphone="${event.contactPhone || ''}">
             <div class="au-event-header">
               ${expandable ? '<span class="au-arrow"><ion-icon name="chevron-down-outline"></ion-icon></span>' : ''}
+              ${isUpcoming ? `<div class="au-date"> ${eventDateLabel}</div>` : ''}
               <div class="au-time">${event.time || ''}</div>
               <div class="au-title">${event.title}</div>
               <div class="au-location">${event.location || ''}</div>
@@ -98,7 +115,14 @@ function buildEvents(data) {
                     ${event.groupName && event.groupDisplayOnWeb ? `
                       <div class="meta-row">
                         <span class="meta-label"><p>Host</p></span>
-                        <span class="meta-value">${event.groupName}</span>
+                        <span class="meta-value">
+                          <button
+                            type="button"
+                            class="host-filter-link link-button"
+                            data-groupid="${event.groupId}">
+                            ${event.groupName}
+                          </button>
+                        </span>
                       </div>
                     ` : ''}
                     ${event.type ? `
@@ -110,7 +134,9 @@ function buildEvents(data) {
                     ${`
                       <div class="meta-row">
                         <span class="meta-label"><p>More Info</p></span>
-                        <span class="meta-value"><a href="javascript:void(0);" target="_blank">Event Page</a></span>
+                        <span class="meta-value">
+                          <a href="javascript:void(0);" class="event-page-link">Event Page</a>
+                        </span>
                       </div>
                     `}
                   </div>
@@ -252,7 +278,22 @@ END:VCALENDAR`;
   });
 }
 
-export function renderCalendarFromApi(block, data, currentDateStr = new Date().toISOString().split('T')[0]) {
+function buildUpcomingHeading(currentDateStr) {
+  const date = new Date(currentDateStr).toLocaleDateString('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  });
+
+  return `
+    <h2 class="au-upcoming-heading">
+      After ${date}
+    </h2>
+  `;
+}
+
+// eslint-disable-next-line default-param-last
+export function renderCalendarFromApi(block, data, currentDateStr = new Date().toISOString().split('T')[0], visibilityLevel, visibilityApproved, visibleRequested, visibleApproved) {
   block.textContent = '';
 
   const html = `
@@ -276,12 +317,16 @@ export function renderCalendarFromApi(block, data, currentDateStr = new Date().t
       ${buildAnnouncements(data)}
 
       <!-- Events -->
-      ${buildEvents(data)}
+      ${buildEvents({ ...data, events: data.events })}
 
       <!-- Popup -->
       ${buildPopup(data)}
 
       ${buildFooter(data, currentDateStr)}
+
+      ${buildUpcomingHeading(currentDateStr)}
+
+      ${buildEvents({ ...data, events: data.upcomingEvents, isUpcoming: true })}
 
     </div>
   `;
@@ -292,11 +337,25 @@ export function renderCalendarFromApi(block, data, currentDateStr = new Date().t
   attachNavButtons(block);
   attachExport(block);
   attachPopup(block);
+  // eslint-disable-next-line no-use-before-define
+  attachEventPageLinks(block, visibilityLevel, visibilityApproved, visibleRequested, visibleApproved);
+  // eslint-disable-next-line no-use-before-define
+  attachHostFilter(block, currentDateStr, visibilityLevel, visibilityApproved, visibleRequested, visibleApproved);
 }
 
-async function loadAnnouncementsForDate(dateStr, block) {
+async function loadUpcomingEvents(eventEndDateTime, groupId, eventTypeId, location, visibilityLevel, visibilityApproved, visibleRequested, visibleApproved) {
   try {
-    const calendarJson = await fetchCalendarData('GetCalendarData', `${dateStr}T00:00:00.000-05:00`, `${dateStr}T23:59:59.999-05:00`, '2', '2', dateStr, '2', 'true');
+    const json = await fetchCalendarData('GetUpcomingCalendarEvents', null, eventEndDateTime, visibilityLevel, visibilityApproved, null, visibleRequested, visibleApproved, groupId, eventTypeId, location);
+
+    return json?.calendarEventsList?.items || [];
+  } catch (e) {
+    return [];
+  }
+}
+
+async function loadAnnouncementsForDate(dateStr, block, groupId, eventTypeId, location, visibilityLevel, visibilityApproved, visibleRequested, visibleApproved) {
+  try {
+    const calendarJson = await fetchCalendarData('GetCalendarData', `${dateStr}T00:00:00.000-05:00`, `${dateStr}T23:59:59.999-05:00`, visibilityLevel, visibilityApproved, dateStr, visibleRequested, visibleApproved, groupId, eventTypeId, location);
     let rawItems = [];
     if (calendarJson && calendarJson.announcementList && calendarJson.announcementList.items) {
       rawItems = calendarJson.announcementList.items;
@@ -324,42 +383,56 @@ async function loadAnnouncementsForDate(dateStr, block) {
       };
     });
 
-    const rawEvents = calendarJson?.calendarEventsList?.items || [];
-    const events = rawEvents.map((item) => {
+    const rawEventsToday = calendarJson?.calendarEventsList?.items || [];
+
+    const lastEventEnd = rawEventsToday.length > 0 ? rawEventsToday[rawEventsToday.length - 1].eventEnd : `${dateStr}T23:59:59.999-05:00`;
+
+    const upcomingRawEvents = await loadUpcomingEvents(lastEventEnd, groupId, eventTypeId, location, visibilityLevel, visibilityApproved, visibleRequested, visibleApproved);
+
+    const mapEvent = (item) => {
       const start = new Date(item.eventStart);
       const end = new Date(item.eventEnd);
+
       const startTime = start.toLocaleTimeString('en-US', {
         hour: 'numeric',
         minute: '2-digit',
         hour12: true,
         timeZone: 'America/New_York',
       });
+
       const endTime = end.toLocaleTimeString('en-US', {
         hour: 'numeric',
         minute: '2-digit',
         hour12: true,
         timeZone: 'America/New_York',
       });
-      const time = item.eventStart && item.eventEnd
-        ? `${startTime} – ${endTime}`
-        : (startTime || '');
+
       return {
-        time,
-        eventId: item.bookingId || '',
+        time: `${startTime} – ${endTime}`,
         title: item.eventName || 'Untitled Event',
         location: item.roomDescription?.markdown || '',
         eventDescription: item.eventDescription?.markdown || '',
+        groupId: item.groupId || '',
+        eventTypeId: item.eventTypeId || '',
         groupName: item.groupName || '',
         groupDisplayOnWeb: item.groupDisplayOnWeb || false,
         contactName: item.calendarContactName || '',
         contactEmail: item.calendarContactEmail || '',
         contactPhone: item.calendarContactPhone || '',
-        type: item.eventTypeName || '(none)',
-        moreInfo: item.path ? `${window.location.origin}${item.path.replace('/content/dam', '/events')}` : '',
+        type: item.eventTypeName || '',
         fullStart: item.eventStart,
         fullEnd: item.eventEnd,
+        dateLabel: start.toLocaleDateString('en-US', {
+          weekday: 'short',
+          month: '2-digit',
+          day: '2-digit',
+          year: 'numeric',
+        }),
       };
-    });
+    };
+
+    const eventsToday = rawEventsToday.map(mapEvent);
+    const upcomingEvents = upcomingRawEvents.map(mapEvent);
 
     const dateObj = new Date(dateStr);
     const dateFormatted = dateObj.toLocaleDateString('en-US', {
@@ -372,7 +445,8 @@ async function loadAnnouncementsForDate(dateStr, block) {
     const data = {
       dateFormatted,
       announcements,
-      events,
+      events: eventsToday,
+      upcomingEvents,
       popupItems: [
         { color: 'red', label: '<ion-icon name="calendar-outline"></ion-icon>Semester Calendar', description: "AU's standard academic calendar consisting of the Fall & Spring Semesters and the Summer Sessions each year." },
         { color: 'gray', label: '<ion-icon name="calendar-outline"></ion-icon>Four Term Calendar', description: "AU's Four Term academic calendar..." },
@@ -382,22 +456,224 @@ async function loadAnnouncementsForDate(dateStr, block) {
       ],
     };
 
-    renderCalendarFromApi(block, data, dateStr);
+    renderCalendarFromApi(block, data, dateStr, visibilityLevel, visibilityApproved, visibleRequested, visibleApproved);
   } catch (err) {
     block.textContent = 'Failed to load announcements and events.';
     block.style.color = 'red';
   }
 }
 
+function formatEventDate(dateStr) {
+  if (!dateStr) return '';
+
+  const date = new Date(dateStr);
+  return date.toLocaleDateString('en-US', {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+  });
+}
+
+function renderEventDetail(block, eventData, visibilityLevel, visibilityApproved, visibleRequested, visibleApproved) {
+  const formattedDate = formatEventDate(eventData.fullStart);
+  block.innerHTML = `
+    <div class="au-calendar">
+      <!-- Search -->
+      <div class="au-search">
+        <div class="au-input-wrapper">
+            <input type="text" id="searchInput" required>
+            <label for="searchInput">Search University Calendar</label>
+        </div>
+        <button type="button" aria-label="Search">
+          <ion-icon name="search-outline"></ion-icon>
+        </button>
+      </div>
+      <section class="au-event-detail">
+        <div class="event-content">
+          <h1 class="event-date">${formattedDate}</h1>
+          <h1>${eventData.title}</h1>
+
+          <p class="event-time-location">
+            ${new Date(eventData.fullStart).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
+            -
+            ${new Date(eventData.fullEnd).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}, ${eventData.location}
+          </p>
+
+          <div class="event-description">
+            <p>${eventData.description}</p>
+          </div>
+          ${eventData.type ? `
+            <div class="meta-row">
+              <span class="meta-label">Type</span>
+              <span class="meta-value">
+                <button
+                  type="button"
+                  class="event-type-filter-link link-button"
+                  data-eventtypeid="${eventData.eventTypeId}">
+                  ${eventData.type}
+                </button>
+              </span>
+            </div>
+          ` : ''}
+          ${eventData.groupName && eventData.groupDisplayOnWeb ? `
+            <div class="meta-row">
+              <span class="meta-label"><p>Host</p></span>
+              <span class="meta-value">
+                <button
+                  type="button"
+                  class="host-filter-link link-button"
+                  data-groupid="${eventData.groupId}">
+                  ${eventData.groupName}
+                </button>
+              </span>
+            </div>
+          ` : ''}
+          <div class="meta-row">
+            <span class="meta-label">Contact</span>
+            <span class="meta-value">
+              <div class="contact-name">${eventData.contactName ? `${eventData.contactName}` : ''}</div>
+              <div class="contact-email">${eventData.contactEmail ? `<a href="mailto:${eventData.contactEmail}">${eventData.contactEmail}</a>` : ''}</div>
+              <div class="contact-phone">${eventData.contactPhone ? `<a href="tel:${eventData.contactPhone}">${eventData.contactPhone}</a>` : ''}</div>
+            </span>
+          </div>
+          <a href="#" class="export-calendar"><ion-icon name="calendar-outline"></ion-icon> Export to Calendar</a>
+        </div>
+
+      </section>
+    </div>
+  `;
+
+  // eslint-disable-next-line no-use-before-define
+  attachEventTypeFilter(block, eventData.fullStart?.split('T')[0], visibilityLevel, visibilityApproved, visibleRequested, visibleApproved);
+  attachExport(block);
+}
+
+function attachEventTypeFilter(block, currentDateStr, visibilityLevel, visibilityApproved, visibleRequested, visibleApproved) {
+  const link = block.querySelector('.event-type-filter-link');
+  if (!link) return;
+
+  link.addEventListener('click', async (e) => {
+    e.preventDefault();
+
+    const eventTypeId = link.dataset.eventtypeid;
+    if (!eventTypeId) return;
+
+    const date = currentDateStr || new Date().toISOString().split('T')[0];
+
+    await loadAnnouncementsForDate(
+      date,
+      block,
+      null,
+      eventTypeId,
+      null,
+      visibilityLevel,
+      visibilityApproved,
+      visibleRequested,
+      visibleApproved,
+    );
+  });
+}
+
+function attachHostFilter(block, currentDateStr, visibilityLevel, visibilityApproved, visibleRequested, visibleApproved) {
+  block.querySelectorAll('.host-filter-link').forEach((link) => {
+    link.addEventListener('click', async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const groupId = link.dataset.groupid;
+      if (!groupId) return;
+
+      const date = currentDateStr || new Date().toISOString().split('T')[0];
+
+      await loadAnnouncementsForDate(
+        date,
+        block,
+        groupId,
+        null,
+        null,
+        visibilityLevel,
+        visibilityApproved,
+        visibleRequested,
+        visibleApproved,
+      );
+    });
+  });
+}
+
+function attachEventPageLinks(block, visibilityLevel, visibilityApproved, visibleRequested, visibleApproved) {
+  block.querySelectorAll('.event-page-link').forEach((link) => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+
+      const eventDiv = link.closest('.au-event');
+
+      renderEventDetail(block, {
+        title: eventDiv.dataset.title,
+        fullStart: eventDiv.dataset.fullstart,
+        fullEnd: eventDiv.dataset.fullend,
+        location: eventDiv.dataset.location,
+        description: eventDiv.dataset.description,
+        type: eventDiv.dataset.type,
+        groupName: eventDiv.dataset.groupname,
+        groupId: eventDiv.dataset.groupid,
+        eventTypeId: eventDiv.dataset.eventtypeid,
+        groupDisplayOnWeb: eventDiv.dataset.groupdisplayonweb === 'true',
+        contactEmail: eventDiv.dataset.contactemail,
+        contactName: eventDiv.dataset.contactname,
+        contactPhone: eventDiv.dataset.contactphone,
+        visibilityLevel,
+        visibilityApproved,
+        visibleRequested,
+        visibleApproved,
+      });
+    });
+  });
+}
+
+function parseDefaultValues(str) {
+  if (!str || str.trim() === '') return 2;
+  const num = parseInt(str.trim(), 10);
+  return Number.isNaN(num) ? 2 : num;
+}
+
+function parseBoolean(str, defaultValue = true) {
+  if (!str || str.trim() === '') return defaultValue;
+  return str.trim().toLowerCase() === 'true';
+}
+
+function extractData(block) {
+  const rows = [...block.children];
+  const data = {};
+
+  rows.forEach((row) => {
+    const key = row.children[0].textContent.trim();
+    const valueCell = row.children[1];
+
+    if (!key || !valueCell) return;
+
+    data[key] = valueCell.textContent.trim();
+  });
+
+  return {
+    groupId: data.groupId,
+    eventTypeId: data.eventTypeId,
+    location: data.location,
+    visibilityLevel: parseDefaultValues(data.visibilityLevel),
+    visibilityApproved: parseDefaultValues(data.visibilityApproved),
+    visibleRequested: parseDefaultValues(data.visibleRequested),
+    visibleApproved: parseBoolean(data.visibleApproved),
+  };
+}
+
 export default async function decorate(block) {
   block.textContent = 'Loading Announcements...';
-
+  const data = extractData(block);
   const today = new Date().toISOString().split('T')[0];
-  await loadAnnouncementsForDate(today, block);
+  await loadAnnouncementsForDate(today, block, data.groupId, data.eventTypeId, data.location, data.visibilityLevel, data.visibilityApproved, data.visibleRequested, data.visibleApproved);
 
   document.addEventListener('calendar:dateSelected', (e) => {
     const selectedDate = e.detail.date;
-    loadAnnouncementsForDate(selectedDate, block);
+    loadAnnouncementsForDate(selectedDate, block, data.groupId, data.eventTypeId, data.location, data.visibilityLevel, data.visibilityApproved, data.visibleRequested, data.visibleApproved);
   });
 
   if (!document.querySelector('script[src*="ionicons"]')) {
