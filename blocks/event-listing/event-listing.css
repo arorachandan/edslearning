@@ -1,0 +1,943 @@
+/* stylelint-disable font-family-no-missing-generic-family-keyword */
+.au-calendar {
+  padding: 15px;
+  max-width: 100%;
+  background: #fff !important;
+  margin: 2rem auto;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  line-height: 1.5;
+}
+
+.au-calendar .au-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.au-calendar .au-footer {
+  display: flex;
+  justify-content: end;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.au-calendar .am-pm {
+    font-variant: small-caps;
+}
+
+.au-calendar time.col-md-3 {
+  width: 25%;
+}
+
+.au-calendar h1 small{
+  display: block;
+  color: #4d4037;
+  font-size: 80%;
+  line-height: 1.2;
+  font-weight: 400;
+}
+
+.au-calendar .hidden {
+    display: none !important;
+}
+
+.au-calendar .au-header h1 {
+  font-family: "GT Walsheim", Arial, sans-serif !important;
+  font-size: clamp(3rem, 2.1vw, 4rem);
+  font-weight: 700;
+  color: #4d4037;
+  letter-spacing: .005em;
+  text-transform: none;
+  margin: 0 0 2.5rem;
+}
+
+.au-calendar .au-event-detail footer {
+  margin-bottom: 50px;
+}
+
+.au-calendar .au-event-detail .event-description {
+  font-size: 1.6rem;
+  font-family: arial;
+  color: #333;
+}
+
+.au-calendar .updated {
+  margin-top: 5px;
+}
+
+.au-calendar p.lede {
+  font-size: 1.8rem;
+  font-family: "GT Walsheim", Arial, sans-serif;
+  font-weight: 600;
+}
+
+.au-calendar .au-nav.day-by-day-navigation {
+  display: flex;
+  gap: 0;
+  margin-bottom: 2.5rem;
+  flex-wrap: nowrap;
+}
+
+.au-calendar .au-nav.day-by-day-navigation .nav-button {
+  position: relative;
+  background: #fff;
+  color: #005099;
+  border: 2px solid #d2d2d2;
+  padding: 0 24px;
+  height: 50px;
+  line-height: 46px;
+  font-family: "GT Walsheim", Arial, sans-serif !important;
+  font-size: 1.5rem;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+  white-space: nowrap;
+  border-radius: unset;
+  margin: 0;
+}
+
+.au-calendar .au-nav.day-by-day-navigation .previous {
+  margin: 0 -2px 0 0;
+}
+
+.au-calendar .link-button {
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: var(--link-color, #005ea2);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.au-calendar .host-filter-link, .event-type-filter-link {
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  font-weight: 700;
+  color: #13477d;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.au-calendar .host-filter-link:hover, .event-type-filter-link:hover {
+  text-decoration: underline;
+}
+
+.au-calendar .meta-value.no-link {
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0 0 10px;
+  text-decoration: none;
+  color: var(--default-body-font-color,#343434);
+}
+
+.au-calendar p+p {
+  margin-top: 0;
+}
+
+.au-calendar .meta-value p {
+  margin-bottom: 15px !important;
+}
+
+.au-calendar .meta-value .contact-email, .au-calendar .meta-value .contact-phone {
+  font-weight: 400;
+}
+
+.au-calendar .link-button:hover {
+  text-decoration: underline;
+}
+
+.au-calendar .au-nav.day-by-day-navigation .previous::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 50%;
+  width: 2px;
+  background: #d2d2d2;
+  transform: translateY(-50%);
+}
+
+.au-calendar .au-nav.day-by-day-navigation .nav-button:hover {
+  border: 2px solid #0672b9;
+  color: #0672b9;
+  text-decoration: underline;
+  text-decoration-color: #0672b9;
+  z-index: 1;
+}
+
+.au-calendar .au-announcement {
+  border: 1px solid #0672b9;
+  padding: 10px;
+  border-radius: 0;
+  margin-bottom: 10px;
+  position: relative;
+}
+
+.au-calendar .au-event-header .au-date {
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 0.15rem;
+}
+
+.au-calendar .info-icon.main-icon {
+  font-size: 2rem;
+  font-family: Ionicons, sans-serif;
+  font-weight: 700;
+  position: absolute;
+  top: 12px;
+  left: 10px;
+  width: 30px;
+  height: 30px;
+  background: #07c;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.au-calendar #calendar-announcements-list {
+  margin: 0 0 10px;
+  padding: 0 0 0 50px;
+  list-style: none;
+}
+
+.au-calendar .event-announcement {
+  margin-bottom: 15px;
+  font-family: "GT Walsheim", Arial, sans-serif;
+  white-space: nowrap;
+}
+
+.au-calendar .tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 12px;
+  color: white;
+  font-weight: bold;
+  font-size: 0.8rem;
+  cursor: pointer;
+  margin-left: 0.5rem;
+}
+
+.au-calendar .tag.red { background: #c81e2b; }
+
+.au-calendar .tag.navy { background: #036; }
+.au-calendar .tag.gray { background: #888; }
+.au-calendar .tag.green { background: #060; }
+
+.au-calendar .au-events {
+  background: #fff;
+  margin: 25px 0;
+}
+
+.au-calendar .au-event {
+  border-bottom: 1px solid #eee;
+  background: #fff;
+  transition: background-color 0.2s ease;
+  margin-bottom: 0;
+}
+
+.au-calendar .au-event:hover {
+  background: #d9dce3;
+}
+
+.au-calendar .au-events .au-event:first-child {
+  border-top: 1px solid #eee;
+}
+
+.au-calendar .au-event-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem 0 0.75rem;
+  cursor: pointer;
+  background: transparent;
+  transition: background-color 0.2s ease;
+}
+
+.au-calendar .au-details {
+  display: none;
+  background: transparent;
+  padding: 0 0 1.25rem;
+  transition: none;
+}
+
+.au-calendar .au-event.open .au-details {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+}
+
+.au-calendar .au-arrow {
+  color: #005099;
+  font-size: 1.2rem;
+  width: 20px;
+  text-align: center;
+  flex-shrink: 0;
+  padding-top: 0.2rem;
+}
+
+.au-calendar .au-time {
+  font-weight: bold;
+  color: #005099;
+  width: 225px;
+  flex-shrink: 0;
+  font-size: 0.95rem;
+}
+
+.au-calendar .au-title {
+  font-weight: 600;
+  font-size: 1.6rem;
+  line-height:2.6rem;
+  flex: 1;
+  color: #333;
+  padding-right: 1rem;
+}
+
+.au-calendar .au-location {
+  color: #343434;
+  font-size: 1.6rem;
+  line-height: 2.6rem;
+  font-family: "GT Walsheim", Arial, sans-serif;
+  font-weight: 400;
+  width: 33%;
+}
+
+.calendar-coming-soon .au-location {
+  color: #343434;
+  font-size: 1.6rem;
+  line-height: 2.6rem;
+  font-family: "GT Walsheim", Arial, sans-serif;
+  font-weight: 400;
+  width: 33%;
+}
+
+.au-calendar .au-left-column {
+  flex: 1;
+  padding: 10px 0 10px 28%;
+  min-width: 0;
+}
+
+.au-calendar .au-description {
+  margin-bottom: 0.75rem;
+}
+
+.au-calendar .au-description p {
+  font-size: 1.6rem;
+  line-height: 2.6rem;
+  font-family: "GT Walsheim", Arial, sans-serif;
+  font-weight: 400;
+  color: #343434;
+  margin: 0;
+}
+
+.au-calendar .au-metadata {
+  margin: 0;
+}
+
+.au-calendar .meta-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 0.5rem 0;
+}
+
+.au-calendar .meta-row:last-child {
+  border-bottom: none;
+}
+
+.au-calendar .meta-label {
+  width: 20%;
+}
+
+.au-calendar .calendar-event-time {
+  color: #343434;
+}
+
+.au-calendar .meta-label p {
+  float: left;
+  color: #343434;
+  background: 0 0;
+  clear: left;
+  margin: 0 1% 10px 0;
+  padding: 0;
+  border: none;
+  font-weight: 700 !important;
+}
+
+.au-calendar .meta-value {
+  color: #0672b9;
+  flex: 1;
+  font-size: 1.6rem;
+  padding-top: 0.25rem;
+  min-width: 0;
+  overflow-wrap: anywhere; 
+}
+
+.au-calendar .meta-value a {
+  display: inline-block;
+  white-space: normal;
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  font-weight: 700;
+  color: #13477d;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.au-calendar .au-actions a {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #005099;
+  text-decoration: none;
+  font-size: 1.6rem;
+  font-weight: 500;
+  justify-content: flex-start;
+  padding: 0.25rem 0;
+  transition: color 0.2s ease;
+}
+
+.au-calendar .ion-android-calendar::before {
+  content: "\f2d1";
+  display: inline-block;
+    font-family: Ionicons;
+    font-style: normal;
+    font-weight: normal;
+    font-variant: normal;
+    text-transform: none;
+    text-rendering: auto;
+    line-height: 1;
+}
+
+.au-calendar .ion-android-mail::before {
+  content: "\f2eb";
+  display: inline-block;
+    font-family: Ionicons;
+    font-style: normal;
+    font-weight: normal;
+    font-variant: normal;
+    text-transform: none;
+    text-rendering: auto;
+    line-height: 1;
+}
+
+.au-calendar .meta-value a:hover {
+  text-decoration: underline;
+}
+
+.au-calendar .au-right-column {
+  flex-shrink: 0;
+  width: 33%;
+  text-align: right;
+  padding-top: 0.5rem;
+}
+
+.au-calendar .au-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.au-calendar .au-actions a:hover {
+  color: #003d7a;
+  text-decoration: underline;
+}
+
+.au-calendar .au-actions a ion-icon {
+  font-size: 1.1rem;
+  color: #005099;
+}
+
+.au-calendar .no-events {
+  text-align: center;
+  color: #666;
+  font-style: italic;
+  padding: 2rem;
+}
+
+.au-calendar .au-popup-overlay {
+  display: none;
+  position: fixed;
+  background: rgb(0 0 0 / 70%);
+  z-index: 10000;
+  justify-content: center;
+  align-items: center;
+  inset: 0;
+}
+
+.au-calendar .au-tag {
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  color: white;
+  font-weight: bold;
+  font-size: 0.85rem;
+  min-width: 140px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.au-calendar .au-popup .au-tag {
+  padding: 0.6rem 1rem;
+  border-radius: 30px;
+  color: white;
+  font-weight: bold;
+  font-size: 0.95rem;
+  width: fit-content;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  flex-shrink: 0;
+  line-height: 1.2;
+}
+
+.au-calendar .au-popup-overlay.visible { display: flex; }
+
+.au-calendar .au-popup {
+  background: white;
+  width: 90%;
+  max-width: 700px;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgb(0 0 0 / 30%);
+}
+
+.au-calendar .au-popup-header {
+  background: #036;
+  color: white;
+  padding: 1rem;
+  position: relative;
+  text-align: center;
+}
+
+.au-calendar .au-close {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: white;
+  font-size: 2rem;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.au-calendar .au-popup-body {
+  padding: 1.5rem;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.au-calendar .au-popup-row {
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.au-calendar .au-popup .au-tag ion-icon {
+  font-size: 1.6rem;
+  flex-shrink: 0;
+}
+
+.au-calendar .au-tag.red { background: #c81e2b; }
+.au-calendar .au-tag.gray { background: #888; }
+.au-calendar .au-tag.navy { background: #036; }
+.au-calendar .au-tag.green { background: #060; }
+
+.loader-spinner {
+  display: inline-block;
+  width: 2em;
+  height: 2em;
+  border: 0.3em solid #ccc;
+  border-top: 0.3em solid #333;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  vertical-align: middle;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.event-listing .au-selector-title{
+  color: #4d4037;
+}
+
+.event-listing .au-selector-list {
+  column-count: 3;
+  column-gap: 20px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.event-listing .au-selector-list li {
+  padding: 0 0 10px;
+  margin: 0;
+  border: none;
+  break-inside: avoid;
+  break-inside: avoid-column;
+  line-height: 2.6rem;
+}
+
+.event-listing .selector-item {
+  font-family: "GT Walsheim", Arial, sans-serif;
+  text-decoration: none;
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 1.6rem;
+  font-weight: 400;
+  color: #13477d;
+  cursor: pointer;
+  text-align: left;
+}
+
+.event-listing .selector-item:hover {
+  text-decoration: underline;
+}
+
+.event-listing .au-selector-footer {
+  margin-bottom: 25px;
+}
+
+.event-listing .selector-item-all {
+  background-color: #005099;
+  color: #fff;
+  border: none;
+  padding: 0 20px;
+  font-size: 1.5rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: "GT Walsheim", Arial, sans-serif;
+  line-height: 50px;
+  margin-top: 25px;
+}
+
+.event-listing .selector-item-all:hover {
+  background-image: linear-gradient(to bottom, #005099 0, #005099 90%, #f4c74b 90%, #f4c74b 100%);
+  text-decoration: none;
+}
+
+.au-calendar .alert {
+  padding: 10px;
+  margin: 10px 0;
+  background-color: #fff;
+  border-color: #fff;
+  border-radius: 0;
+}
+
+.au-calendar .alert.alert-info {
+  border-color: #0672b9;
+}
+
+.au-calendar .alert.single {
+  padding: 0;
+}
+
+.au-calendar .alert.single p {
+  margin: 0 !important;
+  color: #343434;
+  line-height: 2.4rem;
+  font-size: 1.6rem;
+  font-family: "GT Walsheim", Arial, sans-serif;
+  height: auto;
+  min-height: 50px;
+  position: relative;
+  padding-left: 60px;
+  padding-right: 15px;
+}
+
+@media (width >= 992px) {
+    .au-calendar .alert.single p.vertical-center {
+        line-height: 5rem;
+        height: 5rem;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+    }
+}
+
+.au-calendar .alert.single p::before {
+    background-color: #fff;
+    color: #fff;
+    line-height: 5rem;
+    font-size: 2.7rem;
+    font-family: Ionicons;
+    font-weight: 700;
+    width: 50px;
+    height: 50px;
+    text-align: center;
+    display: block;
+    content: "\f401";
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+}
+
+.au-calendar .alert.single.alert-info p::before {
+  background-color: #0672b9;
+  content: "\f14a";
+}
+
+.au-calendar-modal.modal {
+  display: none;
+  position: fixed;
+  overflow-y: auto;
+}
+
+.au-calendar-modal.modal-open {
+  overflow: hidden;
+}
+
+.au-calendar-modal.modal.fade {
+  opacity: 0;
+  transition: opacity .15s linear;
+}
+
+.au-calendar-modal.fade.in {
+  opacity: 1;
+}
+
+.au-calendar-modal .modal-dialog {
+  position: relative;
+}
+
+.au-calendar-modal.modal.fade .modal-dialog {
+  transform: translate(0, -25%);
+  transition: transform .3s ease-out;
+}
+
+.au-calendar-modal.modal.in .modal-dialog {
+  transform: translate(0, 0);
+}
+
+.au-calendar-modal .modal-content {
+  position: relative;
+  background-color: #fff;
+  border: 1px solid #999;
+  border: 1px solid rgb(0 0 0 / 20%);
+  border-radius: 6px;
+  box-shadow: 0 3px 9px rgb(0 0 0 / 50%);
+  background-clip: padding-box;
+  outline: 0;
+}
+
+.au-calendar-modal.modal .modal-content {
+  border-radius: 0;
+}
+
+ .au-calendar-modal .modal-header {
+  position: relative;
+  padding: 15px;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.au-calendar-modal.modal .modal-content .modal-header {
+  background: #d9dce3;
+}
+
+.au-calendar-modal .modal-header .close {
+  position: absolute;
+  top: -6px;
+  right: 6px;
+  float: none;
+}
+
+.au-calendar-modal.modal button.close {
+  padding: 0;
+  cursor: pointer;
+  background: 0 0;
+  border: 0;
+  appearance: none;
+}
+
+.au-calendar-modal.modal .modal-content .modal-header button.close {
+  color: #343434;
+  font-size: 4rem;
+  opacity: 1;
+  text-shadow: none;
+  margin-top: -12px;
+}
+
+.au-calendar-modal.modal .modal-content .modal-header .modal-title {
+  font-family: "GT Walsheim", Arial, sans-serif;
+  font-weight: 700;
+  color: #4d4037;
+  font-size: 2.2rem;
+  line-height: 2.6rem;
+  margin: 0 0 10px;
+  margin-right: 25px;
+  margin-bottom: 0;
+}
+
+.au-calendar-modal form {
+  margin: 25px 0;
+  padding: 0;
+  font-family: "GT Walsheim", Arial, sans-serif;
+}
+
+.au-calendar-modal .form-group {
+    margin-bottom: 15px;
+}
+
+.au-calendar-modal form label, form legend {
+  display: inline-block;
+  max-width: 100%;
+  margin-bottom: 5px;
+  color: #343434;
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.au-calendar-modal .form-control {
+  display: block;
+  width: 100%;
+  height: 34px;
+  padding: 6px 12px;
+  font-size: 14px;
+  color: #555;
+  background-color: #fff;
+  background-image: none;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: inset 0 1px 1px rgb(0 0 0 / 7.5%);
+  transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+}
+
+.au-calendar-modal form .form-control {
+  height: 50px;
+  font-size: 1.6rem;
+  line-height: 3.8rem;
+  border-color: #d2d2d2;
+  box-shadow: none;
+  outline: 0;
+  border-radius: 0;
+}
+
+.au-calendar-modal form textarea.form-control {
+  height: auto;
+  line-height: 2rem;
+}
+
+.au-calendar-modal .btn.btn-primary:disabled{
+  background: #8a95a5 !important;
+  color: #fff;
+  border-color: #ccc !important;
+}
+
+.au-calendar-modal .modal-body {
+  position: relative;
+  padding: 15px;
+}
+
+.au-calendar-modal.modal-footer {
+  padding: 15px;
+  text-align: right;
+  border-top: 1px solid #e5e5e5;
+}
+
+.au-calendar-modal.modal .btn {
+  display: inline-block;
+  margin-bottom: 0;
+  font-weight: 400;
+  text-align: center;
+  vertical-align: middle;
+  touch-action: manipulation;
+  cursor: pointer;
+  background-image: none;
+  border: 1px solid transparent;
+  white-space: nowrap;
+  border-radius: 0;
+  user-select: none;
+  font-size: 1.5rem;
+  font-family: "GT Walsheim", Arial, sans-serif;
+  line-height: 50px;
+  width: auto;
+  height: 50px;
+  padding: 0 20px;
+  margin-top: 25px;
+  text-decoration: none;
+  transition: background-color .5s ease, color .5s ease;
+}
+
+.au-calendar-modal.modal .btn.btn-default {
+  background-color: #fff;
+  font-weight: 700;
+  color: #0672b9;
+  border: 1px solid #0672b9;
+  border-color: #0672b9;
+}
+
+.au-calendar-modal.modal .btn.btn-default:hover {
+  color: #0672b9;
+  background-color: #fff;
+  background-image: linear-gradient(to bottom, #fff 0, #fff 90%, #f4c74b 90%, #f4c74b 100%);
+  border-color: #0672b9;
+  border-bottom-color: #f4c74b;
+}
+
+.modal-backdrop.au-calendar-backdrop {
+  position: fixed;
+  z-index: 1040;
+  background-color: #000;
+}
+
+.modal-backdrop.in.au-calendar-backdrop {
+  opacity: .5;
+}
+
+main div.structure-wrapper div.section.content-section.event-listing-container {
+  display: flex;
+  flex-flow: row wrap;
+  container-type: inline-size;
+  padding: 5px;
+  flex-direction: column;
+}
+
+.event-listing {
+  padding: 15px;
+}
+
+.event-listing .au-selector-subtitle {
+  font-family: "GT Walsheim", Arial, sans-serif;
+  font-weight: 700;
+  color: #4d4037;
+  font-size: clamp(2.4rem, 1.6vw, 3rem);
+  line-height: 3.2rem;
+  letter-spacing: 0;
+  text-transform: none;
+  margin-bottom: 10px;
+}
+
+.event-listing .au-selector-subtitle .restore-month-view {
+  background: none;
+  border: none;
+  color: #13477d;;
+  cursor: pointer;
+  padding: 0;
+  font: inherit;
+  text-decoration: none;
+}
+
+.event-listing .au-selector-subtitle .restore-month-view:hover {
+  text-decoration: underline;
+  color: #0672b9;
+}

@@ -1,35 +1,80 @@
 import {
-  buildBlock,
   loadHeader,
   loadFooter,
   decorateButtons,
   decorateIcons,
+  decorateSections,
   decorateBlocks,
   decorateTemplateAndTheme,
-  getMetadata,
+  readBlockConfig,
   waitForFirstImage,
   loadSection,
   loadSections,
   loadCSS,
-  sampleRUM,
-  readBlockConfig,
-  toClassName,
-  toCamelCase,
+  loadScript,
 } from './aem.js';
+// eslint-disable-next-line import/no-duplicates
+import createAdobeDataLayer from './analytics-util.js';
+// eslint-disable-next-line import/no-duplicates
+import createDataLayerEvent from './analytics-util.js';
+
+export function getConfig(block, { removeRows = true } = {}) {
+  const config = {};
+  const rows = [...block.children];
+
+  rows.forEach((row, index) => {
+    const p = row.querySelector('p');
+    const value = p?.textContent?.trim();
+
+    if (!value) {
+      if (removeRows) {
+        row.remove();
+      }
+      return;
+    }
+
+    config[index] = value;
+
+    if (removeRows) {
+      row.remove();
+    }
+  });
+
+  return config;
+}
 
 /**
- * Builds hero block and prepends to main in a new section.
- * @param {Element} main The container element
+ * Moves all the attributes from a given elmenet to another given element.
+ * @param {Element} from the element to copy attributes from
+ * @param {Element} to the element to copy attributes to
  */
-function buildHeroBlock(main) {
-  const h1 = main.querySelector('h1');
-  const picture = main.querySelector('picture');
-  // eslint-disable-next-line no-bitwise
-  if (h1 && picture && (h1.compareDocumentPosition(picture) & Node.DOCUMENT_POSITION_PRECEDING)) {
-    const section = document.createElement('div');
-    section.append(buildBlock('hero', { elems: [picture, h1] }));
-    main.prepend(section);
+export function moveAttributes(from, to, attributes) {
+  if (!attributes) {
+    // eslint-disable-next-line no-param-reassign
+    attributes = [...from.attributes].map(({ nodeName }) => nodeName);
   }
+  attributes.forEach((attr) => {
+    const value = from.getAttribute(attr);
+    if (value) {
+      to.setAttribute(attr, value);
+      from.removeAttribute(attr);
+    }
+  });
+}
+
+/**
+ * Move instrumentation attributes from a given element to another given element.
+ * @param {Element} from the element to copy attributes from
+ * @param {Element} to the element to copy attributes to
+ */
+export function moveInstrumentation(from, to) {
+  moveAttributes(
+    from,
+    to,
+    [...from.attributes]
+      .map(({ nodeName }) => nodeName)
+      .filter((attr) => attr.startsWith('data-aue-') || attr.startsWith('data-richtext-')),
+  );
 }
 
 /**
@@ -44,15 +89,165 @@ async function loadFonts() {
   }
 }
 
-function autolinkModals(doc) {
-  doc.addEventListener('click', async (e) => {
-    const origin = e.target.closest('a');
-    if (origin && origin.href && origin.href.includes('/modals/')) {
-      e.preventDefault();
-      const { openModal } = await import(`${window.hlx.codeBasePath}/blocks/modal/modal.js`);
-      openModal(origin.href);
+function addContentSectionsWrapper(main) {
+  if (main.children.length === 0) return;
+  let contentSectionsWrapper = null;
+  let leftRailSectionsWrapper = null;
+  let structureWrapper = null;
+  let mainContentWrapper = null;
+  let section = main.children[0];
+  while (section) {
+    const nextSection = section.nextElementSibling;
+    // if its a au content section ...
+    if (section.classList.contains('content-section') || section.classList.contains('column')) {
+      // ...and we dont have a au structure wrapper yet
+      if (!mainContentWrapper) {
+        mainContentWrapper = document.createElement('div');
+        mainContentWrapper.classList.add('main-content-wrapper');
+        section.replaceWith(mainContentWrapper);
+        structureWrapper = document.createElement('div');
+        structureWrapper.classList.add('structure-wrapper');
+        mainContentWrapper.appendChild(structureWrapper);
+        contentSectionsWrapper = document.createElement('div');
+        contentSectionsWrapper.classList.add('content-sections-wrapper');
+        structureWrapper.appendChild(contentSectionsWrapper);
+      }
+
+      // if its a left rail section
+      if (section.classList.contains('left-rail')) {
+        // add left rail class to the content sections wrapper
+        contentSectionsWrapper.classList.add('content-sections-wrapper-with-left-rail');
+
+        // ...and we dont have a left rail sections wrapper yet
+        if (!leftRailSectionsWrapper) {
+          leftRailSectionsWrapper = document.createElement('div');
+          leftRailSectionsWrapper.classList.add('left-rail-sections-wrapper');
+          structureWrapper.prepend(leftRailSectionsWrapper);
+        }
+        // append to left rail wrapper
+        leftRailSectionsWrapper.appendChild(section);
+      } else {
+        // append to content sections wrapper
+        contentSectionsWrapper.appendChild(section);
+      }
+    // if its not a au content section and we have an active wrapper
+    } else {
+      structureWrapper = null;
+      leftRailSectionsWrapper = null;
+      contentSectionsWrapper = null;
+      mainContentWrapper = null;
     }
-  });
+    section = nextSection;
+  }
+}
+
+function decorateCollapsibleSections(main) {
+  const contentSectionsWrapper = main.querySelector('.content-sections-wrapper');
+  if (!contentSectionsWrapper || contentSectionsWrapper.children.length === 0) return;
+  let section = contentSectionsWrapper.children[0];
+  while (section) {
+    if (section.classList.contains('collapsible-section')) {
+      const sectionContent = section.innerHTML;
+      section.innerHTML = '';
+      section.classList.add('collapsed');
+
+      // Create collapsible header
+      const title = section.getAttribute('data-title') || 'Collapsible';
+      const header = document.createElement('div');
+      const ombreElement = document.createElement('div');
+      ombreElement.classList.add('ombre-collapsible-section-wrap');
+      const titleElement = document.createElement('h2');
+      titleElement.textContent = title;
+      header.classList.add('collapsible-section-header');
+      header.setAttribute('tabindex', '0');
+      header.setAttribute('role', 'button');
+      header.setAttribute('aria-expanded', 'false');
+      header.appendChild(ombreElement);
+      header.appendChild(titleElement);
+      section.appendChild(header);
+      // Remove bg style and apply to header
+      const bgClass = Array.from(section.classList).find((cls) => cls.startsWith('bg-'));
+      if (bgClass) {
+        section.classList.remove(bgClass);
+        header.classList.add(bgClass);
+      }
+
+      // Create collapsible content
+      const content = document.createElement('div');
+      content.classList.add('collapsible-section-content');
+      content.innerHTML = sectionContent;
+      section.appendChild(content);
+      const sectionRef = section;
+
+      const setFocusableState = (container, isExpanded) => {
+        const focusableElements = container.querySelectorAll(
+          'a, button, input, select, textarea, [tabindex]:not([tabindex="-1"])',
+        );
+
+        focusableElements.forEach((el) => {
+          if (isExpanded) {
+            el.removeAttribute('tabindex');
+            el.removeAttribute('aria-hidden');
+          } else {
+            el.setAttribute('tabindex', '-1');
+            el.setAttribute('aria-hidden', 'true');
+          }
+        });
+      };
+
+      document.querySelectorAll('.collapsible-section.collapsed .collapsible-section-content').forEach((contentCollapsible) => {
+        setFocusableState(contentCollapsible, false);
+      });
+
+      const toggleCollapse = () => {
+        sectionRef.classList.toggle('collapsed');
+        const expanded = !sectionRef.classList.contains('collapsed');
+        header.setAttribute('aria-expanded', String(expanded));
+
+        const contentCollapsible = sectionRef.querySelector('.collapsible-section-content');
+        setFocusableState(contentCollapsible, expanded);
+      };
+
+      header.addEventListener('click', toggleCollapse);
+      header.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          toggleCollapse();
+        }
+      });
+    }
+    section = section.nextElementSibling;
+  }
+}
+
+function buildTabs(main) {
+  function getTabLabel(section) {
+    const metadataBlock = section.querySelector('.section-metadata');
+    const metadata = metadataBlock ? readBlockConfig(metadataBlock) : {};
+    return metadata['tab-label'];
+  }
+
+  for (let i = 0; i < main.children.length; i += 1) {
+    const section = main.children[i];
+    const tabLabel = getTabLabel(section);
+    const previousSection = i > 0 ? main.children[i - 1] : null;
+    const previousTabLabel = previousSection ? getTabLabel(previousSection) : null;
+
+    if (tabLabel && !previousTabLabel) {
+      // found first tab panel of a list of consecutive tab panels
+      // create a tab list block if non exists as last child
+      let previousBlock = previousSection?.lastElementChild;
+      if (previousBlock?.matches('.section-metadata')) previousBlock = previousBlock.previousElementSibling;
+      if (!previousBlock?.matches('.tab-list')) {
+        const tabListBlock = document.createElement('div');
+        tabListBlock.className = 'tab-list block';
+        const newSection = document.createElement('div');
+        newSection.className = 'section';
+        newSection.appendChild(tabListBlock);
+        section.before(newSection);
+      }
+    }
+  }
 }
 
 /**
@@ -61,63 +256,83 @@ function autolinkModals(doc) {
  */
 function buildAutoBlocks(main) {
   try {
-    if (!main.querySelector('.hero')) buildHeroBlock(main);
+    // TODO: add auto block, if needed
+    buildTabs(main);
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('Auto Blocking failed', error);
   }
 }
 
-/**
- * Decorates all sections in a container element.
- * @param {Element} main The container element
- */
-function decorateSections(main) {
-  main.querySelectorAll(':scope > div').forEach((section) => {
-    const wrappers = [];
-    let defaultContent = false;
-    [...section.children].forEach((e) => {
-      if (e.classList.contains('richtext')) {
-        e.removeAttribute('class');
-        if (!defaultContent) {
-          const wrapper = document.createElement('div');
-          wrapper.classList.add('default-content-wrapper');
-          wrappers.push(wrapper);
-          defaultContent = true;
-        }
-      } else if (e.tagName === 'DIV' || !defaultContent) {
-        const wrapper = document.createElement('div');
-        wrappers.push(wrapper);
-        defaultContent = e.tagName !== 'DIV';
-        if (defaultContent) wrapper.classList.add('default-content-wrapper');
-      }
-      wrappers[wrappers.length - 1].append(e);
-    });
+function initAdobeDataLayer(main) {
+  createAdobeDataLayer('load', 'pageview', () => ({}), window);
 
-    // Add wrapped content back
-    wrappers.forEach((wrapper) => section.append(wrapper));
-    section.classList.add('section');
-    section.dataset.sectionStatus = 'initialized';
-    section.style.display = 'none';
+  // Helper function to get component info from link's closest block
+  function getLinkEventInfo(link) {
+    // Find the closest block with data-block-name
+    const block = link.closest('[data-block-name]');
+    let componentName = 'Link';
+    let componentId = 'link';
 
-    // Process section metadata
-    const sectionMeta = section.querySelector('div.section-metadata');
-    if (sectionMeta) {
-      const meta = readBlockConfig(sectionMeta);
-      Object.keys(meta).forEach((key) => {
-        if (key === 'style') {
-          const styles = meta.style
-            .split(',')
-            .filter((style) => style)
-            .map((style) => toClassName(style.trim()));
-          styles.forEach((style) => section.classList.add(style));
-        } else {
-          section.dataset[toCamelCase(key)] = meta[key];
-        }
-      });
-      sectionMeta.parentNode.remove();
+    if (block) {
+      componentId = block.dataset.blockName;
+      // Convert kebab-case to Title Case (quick-links → Quick Links)
+      componentName = componentId
+        .split('-')
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
     }
-  });
+
+    // Determine link region
+    let linkRegion = 'main';
+
+    // Check for hero -> nav -> sidebar
+    if (link.closest('.hero-container')
+        || link.closest('[class*="hero"]')
+        || link.closest('.tier3header-container')) {
+      linkRegion = 'hero';
+    } else if (link.closest('nav')) {
+      linkRegion = 'nav';
+    } else if (link.closest('.left-rail-sections-wrapper') || link.closest('.left-rail')) {
+      linkRegion = 'sidebar';
+    } else if (link.closest('.right-rail')) {
+      linkRegion = 'sidebar';
+    }
+
+    return {
+      componentName,
+      componentId,
+      linkRegion,
+    };
+  }
+
+  // Helper function to attach listeners
+  function attachLinkListeners() {
+    const allLinks = main.querySelectorAll('a[href]');
+    allLinks.forEach((link) => {
+      if (!link.dataset.adobeTracked) {
+        link.dataset.adobeTracked = 'true';
+
+        const { componentName, componentId, linkRegion } = getLinkEventInfo(link);
+
+        createDataLayerEvent('click', 'click', () => ({
+          linkName: link.textContent.trim(),
+          linkURL: link.href,
+          linkType: 'cta',
+          linkRegion,
+          componentName,
+          componentId,
+        }), link);
+      }
+    });
+  }
+
+  // Watch for new links being added
+  const observer = new MutationObserver(() => attachLinkListeners());
+  observer.observe(main, { childList: true, subtree: true });
+
+  // Attach to existing links immediately
+  attachLinkListeners();
 }
 
 /**
@@ -132,6 +347,9 @@ export function decorateMain(main) {
   buildAutoBlocks(main);
   decorateSections(main);
   decorateBlocks(main);
+  addContentSectionsWrapper(main);
+  decorateCollapsibleSections(main);
+  initAdobeDataLayer(main);
 }
 
 /**
@@ -139,19 +357,23 @@ export function decorateMain(main) {
  * @param {Element} doc The container element
  */
 async function loadEager(doc) {
-  doc.documentElement.lang = 'en';
+  document.documentElement.lang = 'en';
   decorateTemplateAndTheme();
-  if (getMetadata('breadcrumbs').toLowerCase() === 'true') {
-    doc.body.dataset.breadcrumbs = true;
-  }
   const main = doc.querySelector('main');
   if (main) {
+    main.id = 'main-container';
     decorateMain(main);
-    doc.body.classList.add('appear');
+    const path = window.location.pathname;
+    const isMagazinePage = path.startsWith('/magazine') || path.includes('/magazine');
+    if (path === '/' || path === 'index') {
+      document.body.classList.add('appear', 'global-homepage');
+    } else if (isMagazinePage) {
+      document.body.classList.add('appear', 'global-magazine');
+    } else {
+      document.body.classList.add('appear', 'childpage');
+    }
     await loadSection(main.querySelector('.section'), waitForFirstImage);
   }
-
-  sampleRUM.enhance();
 
   try {
     /* if desktop (proxy for fast connection) or fonts already loaded, load fonts.css */
@@ -164,12 +386,17 @@ async function loadEager(doc) {
 }
 
 /**
+ * This method used to call the accessiblity js script to load accessibility changes.
+ */
+async function loadAccessibilityChanges() {
+  await loadScript(`${window.hlx.codeBasePath}/scripts/loadAccessibilityChanges.js`);
+}
+
+/**
  * Loads everything that doesn't need to be delayed.
  * @param {Element} doc The container element
  */
 async function loadLazy(doc) {
-  autolinkModals(doc);
-
   const main = doc.querySelector('main');
   await loadSections(main);
 
@@ -182,6 +409,19 @@ async function loadLazy(doc) {
 
   loadCSS(`${window.hlx.codeBasePath}/styles/lazy-styles.css`);
   loadFonts();
+  loadAccessibilityChanges();
+}
+
+const scriptMap = new Map();
+
+export function loadScriptIfNotLoadedYet(url, attrs) {
+  if (scriptMap.has(url)) {
+    return scriptMap.get(url).promise;
+  }
+
+  const promise = loadScript(url, attrs);
+  scriptMap.set(url, { url, attrs, promise });
+  return promise;
 }
 
 /**
@@ -189,48 +429,15 @@ async function loadLazy(doc) {
  * without impacting the user experience.
  */
 function loadDelayed() {
+  // eslint-disable-next-line import/no-cycle
   window.setTimeout(() => import('./delayed.js'), 3000);
   // load anything that can be postponed to the latest here
-}
-
-async function loadSidekick() {
-  if (document.querySelector('aem-sidekick')) {
-    import('./sidekick.js');
-    return;
-  }
-
-  document.addEventListener('sidekick-ready', () => {
-    import('./sidekick.js');
-  });
 }
 
 async function loadPage() {
   await loadEager(document);
   await loadLazy(document);
   loadDelayed();
-  loadSidekick();
-}
-
-// UE Editor support before page load
-if (window.location.hostname.includes('ue.da.live')) {
-  // eslint-disable-next-line import/no-unresolved
-  await import(`${window.hlx.codeBasePath}/ue/scripts/ue.js`).then(({ default: ue }) => ue());
 }
 
 loadPage();
-
-const { searchParams, origin } = new URL(window.location.href);
-const branch = searchParams.get('nx') || 'main';
-
-export const NX_ORIGIN = branch === 'local' || origin.includes('localhost') ? 'http://localhost:6456/nx' : 'https://da.live/nx';
-
-(async function loadDa() {
-  /* eslint-disable import/no-unresolved */
-  if (searchParams.get('dapreview')) {
-    import('https://da.live/scripts/dapreview.js')
-      .then(({ default: daPreview }) => daPreview(loadPage));
-  }
-  if (searchParams.get('daexperiment')) {
-    import(`${NX_ORIGIN}/public/plugins/exp/exp.js`);
-  }
-}());
