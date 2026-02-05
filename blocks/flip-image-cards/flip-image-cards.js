@@ -185,6 +185,20 @@ function createFlipImageCardDom(cardData) {
 
 function createSquareDom(squareCardsData, squareDivsItem) {
   const squareCardDiv = document.createElement('div');
+  // Add tab focus for accessibility
+  squareCardDiv.setAttribute('tabindex', '0');
+  // squareCardDiv.addEventListener('keydown', (event) => {
+  //   if (event.key === 'Enter' || event.key === ' ') {
+  //     event.preventDefault();
+  //     //squareCardModalDom.querySelector('a').click();
+  //   }
+  // });
+  squareCardDiv.addEventListener('focus', () => {
+    squareCardDiv.querySelector('figure')?.classList.add('focus');
+  });
+  squareCardDiv.addEventListener('blur', () => {
+    squareCardDiv.querySelector('figure')?.classList.remove('focus');
+  });
   squareCardDiv.classList.add('flipHover', squareCardsData.cardStyle);
   moveInstrumentation(squareDivsItem, squareCardDiv);
 
@@ -195,12 +209,18 @@ function createSquareDom(squareCardsData, squareDivsItem) {
   squareCardDiv.appendChild(squareCardModalDom);
 
   addFlipHoverEvent(squareCardDiv);
-
   return squareCardDiv;
 }
 
 function createSquareBigDom(cardData, bigSquareDivItem) {
   const squareBigCardDiv = document.createElement('div');
+  squareBigCardDiv.setAttribute('tabindex', '0');
+  squareBigCardDiv.addEventListener('focus', () => {
+    squareBigCardDiv.querySelector('figure')?.classList.add('focus');
+  });
+  squareBigCardDiv.addEventListener('blur', () => {
+    squareBigCardDiv.querySelector('figure')?.classList.remove('focus');
+  });
   squareBigCardDiv.classList.add('flipHover', cardData.cardStyle);
   moveInstrumentation(bigSquareDivItem, squareBigCardDiv);
 
@@ -217,6 +237,13 @@ function createSquareBigDom(cardData, bigSquareDivItem) {
 
 function createLandscapeDom(cardData, landscapeDivItem) {
   const landscapeCardDiv = document.createElement('div');
+  landscapeCardDiv.setAttribute('tabindex', '0');
+  landscapeCardDiv.addEventListener('focus', () => {
+    landscapeCardDiv.querySelector('figure')?.classList.add('focus');
+  });
+  landscapeCardDiv.addEventListener('blur', () => {
+    landscapeCardDiv.querySelector('figure')?.classList.remove('focus');
+  });
   landscapeCardDiv.classList.add('flipHover', cardData.cardStyle);
   moveInstrumentation(landscapeDivItem, landscapeCardDiv);
 

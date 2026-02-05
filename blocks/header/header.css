@@ -4,7 +4,7 @@
   --dark-blue: #182449;
   --highlight-yellow: #f4c74b;
   --hover-color: #005099;
-  --font-primary: arial, sans-serif;
+  --font-primary: "GT Walsheim", arial, sans-serif;
   --font-secondary: "GT Walsheim", arial, sans-serif;
 }
 
@@ -61,7 +61,7 @@
   }
 
   .header-main.header {
-    padding: 0 0 0 1.8rem;
+    padding: 10px;
   }
 }
 
@@ -72,6 +72,11 @@
   justify-content: space-between;
   width: 100%;
   flex-wrap: nowrap;
+}
+
+.head-sub #row-all-logo .logo {
+  margin: 0 1.5rem;
+
 }
 
 .global-homepage #row-all-logo {
@@ -128,11 +133,12 @@
   line-height: 24px;
 }
 
-.header-main .menu-item>a {
+.header-main .menu-item>a,
+.header-main .submenu-item>a {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 24px 10px 12px;
+  padding: 8px 24px 7px 12px;
   width: 100%;
   text-decoration: none;
 }
@@ -147,9 +153,7 @@
 }
 
 .header-main.head-sub .submenu-item {
-  color: black;
-  font-family: var(--font-secondary);
-  padding: 8px 24px 10px 12px;
+  margin: 0;
 }
 
 .header-main .home-links>a::after {
@@ -229,16 +233,19 @@
   z-index: 10000;
   right: 0;
   box-sizing: border-box;
-  top: 70px;
+  top: 35px;
   text-align: initial;
   padding: 0 30px;
   overflow: hidden auto;
+  transition: all 0.33s;
 }
 
 .header-main.head-sub #new-nav.navmenu {
   color: black;
-  top: var(--nav-height);
-  height: 600px;
+  max-height: 790px;
+  height: 95vh;
+  right: -25px;
+  box-shadow: -2px 5px 5px #aaa;
 }
 
 .header-main.head-home #new-nav.navmenu {
@@ -262,7 +269,7 @@
 
 .header-main.head-sub .menu {
   background: inherit;
-  color: black;
+  color: var(--default-body-font-color);
   line-height: 26px;
 }
 
@@ -286,25 +293,21 @@
 .header-main.head-home li.menu-item {
   text-transform: uppercase;
   font-size: 14px;
-  font-family: arial, sans-serif;
-}
-
-.header-main.head-home li#menu-item-expandable {
-  margin-bottom: 10px;
 }
 
 .header-main.head-sub li.menu-item {
   font-size: 16px;
   font-family: var(--font-secondary);
+  margin: 10px 0;
 }
 
 .header-main.head-sub .menu-item>a {
-  color: black;
+  color: var(--default-body-font-color);
   font-weight: 400;
 }
 
 .header-main.head-sub .submenu-item a {
-  color: black;
+  color: var(--default-body-font-color);
 }
 
 .header-main.head-sub .submenu-item a:hover,
@@ -338,7 +341,6 @@
   text-decoration: none;
   padding: 8px 24px 10px 12px;
   font-size: 14px;
-  font-family: arial, sans-serif;
   text-transform: none;
 }
 
@@ -355,7 +357,8 @@
 .header-main .submenu {
   list-style: none;
   padding-left: 15px;
-  display: none;
+  overflow: hidden;
+  transition: all 0.33s;
 }
 
 .header-main.head-home li.submenu-item {
@@ -420,16 +423,16 @@
 
 .header-main .search-find-container input[type="search"],
 .header-main .search-find-container .btn.btn-primary {
-  border-radius: 0 !important;
+  border-radius: 0;
 }
 
 .header-main .search-find-container input[type="search"] {
-  border-radius: 4px 0 0 4px;
   border-right: none;
   border: 3px solid var(--warm-blue);
   padding: 6px 12px;
   height: 34px;
   width: 290px;
+  font-size: 1.6rem;
 }
 
 .header-main .search-find-container .btn.btn-primary {
@@ -484,15 +487,12 @@
   width: 344px;
   height: 39px;
   font-size: 14px;
-  font-family: arial, sans-serif;
   display: flex;
   margin: 0 0 10px;
   padding: 0 10px;
 }
 
 .header-main #new-search p {
-  font-size: 14px;
-  font-family: arial, sans-serif;
   margin: 0;
 }
 
@@ -502,16 +502,6 @@
 
 .header-main.head-sub #new-search p {
   padding: 8px 24px 7px 12px;
-}
-
-.header-main.head-home span.submenu-toggle-icon-close,
-.header-main.head-home span.submenu-toggle-icon {
-  color: #fff;
-}
-
-.header-main.head-sub span.submenu-toggle-icon-close,
-.header-main.head-sub span.submenu-toggle-icon {
-  color: black;
 }
 
 .header-main.head-home .submenu-toggle-icon-close:hover,
@@ -541,7 +531,6 @@
   line-height: 2rem;
   font-size: 1.6rem;
   height: 3.4rem;
-  font-family: Interstate, arial, sans-serif;
 }
 
 .header-main.head-home .btn.btn-primary:hover,
@@ -561,8 +550,8 @@
 
 .header-main ul#new-main-menu-accordion {
   border-bottom: 1px solid #fff;
+  margin: 20px 0;
   padding-bottom: 25px;
-  width: -webkit-fill-available;
 }
 
 /* Responsive Styles */
@@ -580,7 +569,7 @@
   .header-main #new-nav.navmenu {
     border: 1px solid rgba(255 255 255 / 35%);
     position: fixed;
-    top: 70.8px;
+    top: 54px;
     left: 0;
     right: 0;
     width: 100% !important;

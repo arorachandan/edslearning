@@ -1,4 +1,4 @@
-li {
+.tier3header li {
   margin-top: 0 !important;
   margin-bottom: 0 !important;
 }
@@ -9,7 +9,7 @@ li {
     max-width: 100% !important;
   }
 
-  .bg-school-primary {
+  .tier3header-wrapper .bg-school-primary {
     background-color: #0672b9;
   }
 
@@ -52,7 +52,7 @@ li {
     text-decoration: none;
   }
 
-  a.crumb:visited {
+  .tier3header.block a.crumb:visited {
     color: rgb(255 255 255 / 96%);
   }
 
@@ -112,33 +112,33 @@ li {
     background-color: var(--link-hover-color);
   }
 
-  .btn.btn-school {
+  .tier3header.block .btn.btn-school {
     font-weight: 700;
     color: var(--white-color);
     background: var(--link-hover-color);
     background-color: var(--link-hover-color);
   }
 
-  .affix-top.has-breadcrumb .row-center {
+  .tier3header.block .affix-top.has-breadcrumb .row-center {
     max-width: 1280px;
     margin: 0 auto;
   }
 
-  .btn.btn-school:hover,
-  .btn.btn-school:focus {
+  .tier3header.block .btn.btn-school:hover,
+  .tier3header.block .btn.btn-school:focus {
     background-color: #0672b9;
     background-image: linear-gradient(to bottom, #0672b9 0, #0672b9 90%, #f4c74b 90%, #f4c74b 100%) !important;
     border-color: #0672b9 !important;
   }
 
-  .a5-widget-container .a5-widget-card, .a5-widget-container .a5-widget-card.a5-widget>.a5-icon {
+  .tier3header.block .a5-widget-container .a5-widget-card, .tier3header.block .a5-widget-container .a5-widget-card.a5-widget>.a5-icon {
     height: 40px !important;
     width: 350px !important;
     min-height: 40px !important;
   }
 
 
-  .ion-lg {
+  .tier3header.block .ion-lg {
     position: relative;
     font-size: 1.5em;
     line-height: .75em;

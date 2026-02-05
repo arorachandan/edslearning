@@ -4,8 +4,18 @@
   max-width: 100%;
 }
 
+.blockquote-wrapper .small-blockquote {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto auto;
+}
+
 picture.pull-right{
-  float: right
+  grid-column: 2;
+  grid-row: 2;
+  margin-left: 20px;
+  margin-top: 50px;
+  order: unset;
 }
 
 .blockquote-wrapper .pull-quote {
@@ -16,9 +26,16 @@ picture.pull-right{
 }
 
 .blockquote-wrapper .block-above{
-  width: 100%;
+  /* width: 100%; */
   background: linear-gradient(120deg, #e0263c 0, #e0263c 11%, #3c208c 89%, #3c208c 100%);
   height: 6px;
+  grid-column: 1 / -1;
+  grid-row: 1;
+}
+
+.blockquote-wrapper .block-below {
+  grid-column: 1 / -1;
+  grid-row: 3;
 }
 
 .blockquote-wrapper .border-circle img{
@@ -28,9 +45,11 @@ picture.pull-right{
 }
 
 .blockquote-wrapper .bq-wrap{
-  display: flex;
+  grid-column: 1;
+  grid-row: 2;
+  order: unset;
+  display:flex;
   flex-direction: row;
-  height: auto;
 }
 
 .blockquote-wrapper .quote-mark{

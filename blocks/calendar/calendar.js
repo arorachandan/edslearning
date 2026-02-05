@@ -1,3 +1,5 @@
+import { resolveInitialDate, persistSelectedDate, updateUrlWithDate } from '../../scripts/util.js';
+
 async function loadFullCalendar() {
   if (window.FullCalendar) return;
 
@@ -25,6 +27,7 @@ async function loadFullCalendar() {
 
 export default async function decorate(block) {
   await loadFullCalendar();
+  const initialDate = resolveInitialDate() || new Date().toISOString().split('T')[0];
 
   const calendarEl = document.createElement('div');
   calendarEl.classList.add('calendar-full');
@@ -33,6 +36,7 @@ export default async function decorate(block) {
 
   const calendar = new window.FullCalendar.Calendar(calendarEl, {
     initialView: 'dayGridMonth',
+    initialDate,
     headerToolbar: {
       left: 'prev',
       center: 'title',
@@ -45,8 +49,8 @@ export default async function decorate(block) {
     dateClick(info) {
       const selectedDate = info.dateStr;
 
-      document.querySelectorAll('.fc-daygrid-day.fc-day-selected').forEach((el) => el.classList.remove('fc-day-selected'));
-      document.querySelectorAll('.fc-day-today').forEach((el) => el.classList.remove('fc-day-today'));
+      persistSelectedDate(selectedDate);
+      updateUrlWithDate(selectedDate);
       info.dayEl.classList.add('fc-day-selected');
 
       document.dispatchEvent(new CustomEvent('calendar:dateSelected', {
@@ -56,6 +60,20 @@ export default async function decorate(block) {
   });
 
   calendar.render();
+
+  // Add classes to left rail and content wrapper for styling when calendar is present
+  const leftRailWrapper = calendarEl.closest('.left-rail-sections-wrapper');
+  const contentWrapper = leftRailWrapper
+    ? leftRailWrapper.parentElement?.querySelector('.content-sections-wrapper-with-left-rail')
+    : null;
+
+  if (leftRailWrapper) {
+    leftRailWrapper.classList.add('calendar-left-rail');
+  }
+
+  if (contentWrapper) {
+    contentWrapper.classList.add('calendar-left-rail');
+  }
 
   let currentSelectedDate = null;
 
@@ -79,8 +97,7 @@ export default async function decorate(block) {
     highlightDateInFullCalendar(e.detail.date);
   });
 
-  const today = new Date().toISOString().split('T')[0];
   document.dispatchEvent(new CustomEvent('calendar:dateSelected', {
-    detail: { date: today },
+    detail: { date: initialDate },
   }));
 }

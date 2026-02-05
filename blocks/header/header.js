@@ -69,14 +69,10 @@ function createSearchFindBlock(browseTitle, browseUrl) {
   const toggleLink = document.createElement('a');
   toggleLink.tabIndex = -1;
   toggleLink.id = 'new-search-toggle';
-  toggleLink.dataset.toggle = 'collapse';
-  toggleLink.dataset.target = '#new-search';
-  toggleLink.href = '#new-search';
   toggleLink.textContent = window.innerWidth < 991 ? 'Search' : '';
 
   const searchCollapse = document.createElement('div');
   searchCollapse.id = 'new-search';
-  searchCollapse.className = 'collapsed in';
   const formGroupStyle = 'display: flex; align-items: center;';
 
   const searchForm = document.createElement('form');
@@ -94,7 +90,7 @@ function createSearchFindBlock(browseTitle, browseUrl) {
   const searchHidden = document.createElement('input');
   searchHidden.name = 'collection';
   searchHidden.type = 'hidden';
-  searchHidden.value = 'au-meta';
+  searchHidden.value = 'american~sp-meta';
 
   const searchInput = document.createElement('input');
   searchInput.tabIndex = 0;
@@ -182,8 +178,8 @@ function createSearchFindBlock(browseTitle, browseUrl) {
 function createHamburgerNav(subMenuData, browseTitle, browseUrl, headerColor) {
   const nav = document.createElement('nav');
   nav.id = 'new-nav';
-  nav.style.display = 'none';
-  nav.className = 'navmenu collapsed col-xs-12 col-sm-5 col-md-4 collapse in';
+  nav.style.maxHeight = '0';
+  nav.className = 'navmenu col-xs-12 col-sm-5 col-md-4';
   if (headerColor) {
     nav.classList.add(headerColor);
   }
@@ -264,7 +260,7 @@ function createHamburgerNav(subMenuData, browseTitle, browseUrl, headerColor) {
       const subUl = document.createElement('ul');
       subUl.id = menuId;
       subUl.className = 'submenu';
-      subUl.style.display = 'none';
+      subUl.style.maxHeight = '0';
 
       menuItem.children.forEach((child) => {
         const subLi = document.createElement('li');
@@ -778,12 +774,28 @@ export default async function decorate(block) {
 
     block.appendChild(row);
   }
+  // Set attribute to identify header has loaded
+  document.body.setAttribute('data-header-loaded', 'true');
 }
 
 window.toggleMenu = function toggleMenu() {
   const menu = document.querySelector('#new-nav');
-  const isVisible = menu.style.display === 'block';
-  menu.style.display = isVisible ? 'none' : 'block';
+  const maxHeightVisible = window.innerWidth < 991 ? '100vh' : '790px';
+  const isVisible = menu.style.maxHeight === maxHeightVisible;
+  menu.style.maxHeight = isVisible ? '0' : maxHeightVisible;
+
+  // Close all submenus when closing main menu
+  menu.querySelectorAll('.submenu').forEach((submenu) => {
+    submenu.style.maxHeight = '0';
+  });
+  menu.querySelectorAll('.submenu-toggle-icon-close').forEach((iconClose) => {
+    iconClose.className = 'submenu-toggle-icon';
+  });
+
+  // Reset scroll position to top when opening menu
+  if (!isVisible) {
+    menu.scrollTop = 0;
+  }
 
   const icon = document.querySelector('.navbar-toggle-button .hamburger-icon');
   const iconClose = document.querySelector('.navbar-toggle-button .hamburger-icon-close');
@@ -796,11 +808,12 @@ window.toggleMenu = function toggleMenu() {
 
 window.toggleSubmenu = function toggleSubmenu(id) {
   const submenu = document.getElementById(id);
+  const submenuItems = submenu?.querySelectorAll('li.submenu-item');
   const icon = submenu?.parentElement.querySelector('.submenu-toggle-icon');
   const iconClose = submenu?.parentElement.querySelector('.submenu-toggle-icon-close');
   if (submenu) {
-    const isVisible = submenu.style.display === 'block';
-    submenu.style.display = isVisible ? 'none' : 'block';
+    const isVisible = submenu.style.maxHeight === `${40 * submenuItems.length}px`;
+    submenu.style.maxHeight = isVisible ? '0' : `${40 * submenuItems.length}px`;
     if (icon) {
       icon.className = isVisible ? 'submenu-toggle-icon' : 'submenu-toggle-icon-close';
     } else if (iconClose) {

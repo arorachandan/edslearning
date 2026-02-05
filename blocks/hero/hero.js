@@ -102,7 +102,7 @@ function parseHeroFullWidth(block) {
         ctaLink = link.getAttribute('href') || '';
       }
     } else if (text && !text.startsWith('cta-bg-indigo-purple-color')) {
-      if (!description && !(text.startsWith('link') || text.startsWith('button') || text.startsWith('txt-align') || text.startsWith('txt-horizontal'))) {
+      if (!description && !(text.startsWith('link') || text.startsWith('button') || text.startsWith('txt-align') || text.startsWith('txt-horizontal') || (text.startsWith('bg-')))) {
         description = text;
       } else if (!textAlign && text.startsWith('txt-align')) {
         textAlign = text.replace('txt-', ''); // vertical alignment
@@ -218,7 +218,7 @@ function createFullWidthDOM(data) {
   header.appendChild(h1);
   message.appendChild(header);
 
-  if (description || ctaText) {
+  if (description || (ctaText && ctaLink)) {
     const lede = document.createElement('p');
     lede.className = 'lede';
     lede.innerHTML = `${description} <br>`;

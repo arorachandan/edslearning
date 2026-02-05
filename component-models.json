@@ -20,6 +20,95 @@
         "name": "keywords",
         "multi": true,
         "label": "Keywords"
+      },
+      {
+        "component": "boolean",
+        "valueType": "boolean",
+        "name": "isCalendar",
+        "label": "Is Calendar Page?"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "calendarName",
+        "label": "Calendar Name"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "hostIds",
+        "label": "Calendar Host IDs"
+      },
+      {
+        "component": "select",
+        "name": "visibilityLevel",
+        "label": "Calendar Event Listing Visibility Level",
+        "options": [
+          {
+            "name": "[0] Do Not Publish to Calendar",
+            "value": "0"
+          },
+          {
+            "name": "[1] Basic Calendar Record",
+            "value": "1"
+          },
+          {
+            "name": "[2] Publish to Main Calendar",
+            "value": "2"
+          },
+          {
+            "name": "[3] Visibility Level Three",
+            "value": "3"
+          }
+        ]
+      },
+      {
+        "component": "select",
+        "name": "visibilityApproved",
+        "label": "Calendar Event Listing Visibility Approved",
+        "options": [
+          {
+            "name": "[0] Do Not Publish to Calendar",
+            "value": "0"
+          },
+          {
+            "name": "[1] Basic Calendar Record",
+            "value": "1"
+          },
+          {
+            "name": "[2] Publish to Main Calendar",
+            "value": "2"
+          },
+          {
+            "name": "[3] Visibility Aprroved Three",
+            "value": "3"
+          }
+        ]
+      },
+      {
+        "component": "select",
+        "name": "visbleRequested",
+        "label": "Announcement Visibility Requested",
+        "options": [
+          {
+            "name": "[0] Do Not Publish to Calendar",
+            "value": "0"
+          },
+          {
+            "name": "[1] Basic Calendar Record",
+            "value": "1"
+          },
+          {
+            "name": "[2] Publish to Main Calendar",
+            "value": "2"
+          }
+        ]
+      },
+      {
+        "component": "boolean",
+        "valueType": "boolean",
+        "name": "visibleApproved",
+        "label": "Announcement Listing Visibility Approved"
       }
     ]
   },
@@ -1407,14 +1496,28 @@
         "name": "hero_image",
         "label": "Image",
         "multi": false,
-        "required": true
+        "required": true,
+        "condition": {
+          "===": [{ "var": "hero_variation" }, "var-partial-width-image"]
+        },
+        "restrictions": {
+          "allowedMimeTypes": ["image/jpeg", "image/jpg"]
+        },
+      "selection": {
+        "type": "path",
+        "root": "/content/dam",
+        "accept": [".jpg", ".jpeg", ".png"]
+      }
       },
       {
         "component": "text",
         "name": "hero_imageAlt",
         "label": "Image Alt Text",
         "valueType": "string",
-        "required": true
+        "required": true,
+        "condition": {
+          "===": [{ "var": "hero_variation" }, "var-partial-width-image"]
+        }
       },
       {
         "component": "text",
@@ -1428,12 +1531,14 @@
       {
         "component": "text",
         "name": "surtitle",
-        "label": "Surtitle"
+        "label": "Surtitle",
+        "value": ""
       },
       {
         "component": "text",
         "name": "hero_text",
-        "label": "Text"
+        "label": "Text",
+        "value": ""
       },
       {
         "component": "select",
@@ -1518,7 +1623,10 @@
         "component": "text",
         "name": "hero_btnCaption",
         "label": "CTA Text",
-        "valueType": "string"
+        "valueType": "string",
+        "condition": {
+          "===": [{ "var": "hero_variation" }, "var-partial-width-image"]
+        }
       },
       {
         "component": "aem-content",
@@ -1527,6 +1635,9 @@
         "valueType": "string",
         "validation": {
           "rootPath": "/content/au"
+        },
+        "condition": {
+          "===": [{ "var": "hero_variation" }, "var-partial-width-image"]
         }
       },
       {
@@ -1538,7 +1649,10 @@
         "options": [
           { "name": "Button", "value": "button" },
           { "name": "Link", "value": "link" }
-        ]
+        ],
+        "condition": {
+          "===": [{ "var": "hero_variation" }, "var-partial-width-image"]
+        }
       },
       {
         "component": "select",
@@ -1558,6 +1672,9 @@
           "valueType": "string",
           "name": "hero_image1",
           "label": "Image 1",
+           "condition": {
+            "===": [{ "var": "hero_variation" }, "var-full-width-image"]
+          },
           "required": true
             },
             {
@@ -1565,55 +1682,82 @@
               "name": "hero_image1Alt",
               "label": "Image 1 Alt Text",
               "valueType": "string",
-              "required": true
+              "required": true,
+              "condition": {
+                "===": [{ "var": "hero_variation" }, "var-full-width-image"]
+              }
             },
             {
               "component": "reference",
               "valueType": "string",
               "name": "hero_image2",
-              "label": "Image 2"
+              "label": "Image 2",
+              "condition": {
+                "===": [{ "var": "hero_variation" }, "var-full-width-image"]
+              }
             },
             {
               "component": "text",
               "name": "hero_image2Alt",
               "label": "Image 2 Alt Text",
-              "valueType": "string"
+              "valueType": "string",
+              "condition": {
+                "===": [{ "var": "hero_variation" }, "var-full-width-image"]
+              }
             },
             {
               "component": "reference",
               "valueType": "string",
               "name": "hero_image3",
-              "label": "Image 3"
+              "label": "Image 3",
+              "condition": {
+                "===": [{ "var": "hero_variation" }, "var-full-width-image"]
+              }
             },
             {
               "component": "text",
               "name": "hero_image3Alt",
               "label": "Image 3 Alt Text",
-              "valueType": "string"
+              "valueType": "string",
+              "condition": {
+                "===": [{ "var": "hero_variation" }, "var-full-width-image"]
+              }
             },
             {
               "component": "reference",
               "valueType": "string",
               "name": "hero_image4",
-              "label": "Image 4"
+              "label": "Image 4",
+              "condition": {
+                "===": [{ "var": "hero_variation" }, "var-full-width-image"]
+              }
             },
             {
               "component": "text",
               "name": "hero_image4Alt",
               "label": "Image 4 Alt Text",
-              "valueType": "string"
+              "valueType": "string",
+              "condition": {
+                "===": [{ "var": "hero_variation" }, "var-full-width-image"]
+              }
             },
             {
               "component": "reference",
               "valueType": "string",
               "name": "hero_image5",
-              "label": "Image 5"
+              "label": "Image 5",
+              "condition": {
+                "===": [{ "var": "hero_variation" }, "var-full-width-image"]
+              }
             },
             {
               "component": "text",
               "name": "hero_image5Alt",
               "label": "Image 5 Alt Text",
-              "valueType": "string"
+              "valueType": "string",
+              "condition": {
+                "===": [{ "var": "hero_variation" }, "var-full-width-image"]
+              }
 
       },
       {
@@ -1888,7 +2032,7 @@
             "value": "ombre-style"
           },
           {
-            "name": "Quote with background Image",
+            "name": "Diagonal Background Quote",
             "value": "bg-image"
           },
           {
@@ -1920,7 +2064,12 @@
             "name": "blockquote_citationName",
             "label": "Citation Name",
             "value": "",
-            "required": true
+            "required": true,
+            "valueFormat": "regexp",
+            "validation": {
+              "regExp": "^(?!\\s*$).+",
+              "customErrorMsg": "Field must not be blank"
+            }
           },
           {
             "component": "text",
@@ -1928,7 +2077,13 @@
             "name": "blockquote_citationTxt",
             "label": "Citation Text",
             "value": "",
-            "required": true
+            "required": true,
+            "valueFormat": "regexp",
+            "validation": {
+              "maxLength": 60,
+              "regExp": "^(?!\\s*$).+",
+              "customErrorMsg": "Field must not be blank; Max characters 60"
+            }
           },
           {
             "component": "reference",
@@ -1940,7 +2095,7 @@
             "component": "text",
             "valueType": "string",
             "name": "blockquote_imageAlt",
-            "label": "Alt",
+            "label": "Alt Text",
             "value": ""
           },
           {
@@ -3603,7 +3758,7 @@
         "name": "quickFactsItem_descriptionTxt",
         "label": "Description",
         "valueType": "string",
-        "required": true
+        "required": false
       }
     ]
   },
@@ -3800,21 +3955,13 @@
         "component": "text",
         "name": "textBlock_title",
         "label": "Title",
-        "valueType": "string",
-        "validation": {
-          "maxLength": 80,
-          "customErrorMsg": "Max characters 80"
-        }
+        "valueType": "string"
       },
       {
         "component": "text",
         "name": "subtitle",
         "label": "Sub Title",
-        "valueType": "string",
-        "validation": {
-          "maxLength": 80,
-          "customErrorMsg": "Max characters 80"
-        }
+        "valueType": "string"
       },
       {
         "component": "richtext",
@@ -3828,6 +3975,7 @@
         "name": "textBlock_padding",
         "label": "Padding",
         "valueType": "string",
+        "hidden": true,
         "options": [
           { "name": "Default", "value": "padding-default" },
           { "name": "None", "value": "padding-none" },
@@ -4159,7 +4307,7 @@
             "value": "it-help"
           },
           {
-            "name": "Reserach",
+            "name": "Research",
             "value": "research"
           }
         ]
@@ -4457,7 +4605,7 @@
     "id": "dropFormItem",
     "fields": [
       { "component": "text", "name": "key", "value": "", "label": "Key", "valueType": "string", "required": false },
-      { "component": "aem-content", "valueType": "string", "name": "value", "label": "Value", "value": "", "required": false, "validation": {"rootPath": "/content/au"} }
+      { "component": "aem-content", "valueType": "string", "name": "value", "label": "Value", "value": "", "required": false, "validation": {"rootPath": "/content/au"}}
     ]
   },
   {
@@ -4694,6 +4842,12 @@
     ]
   },
   {
+    "id": "calendar-search",
+    "fields": [
+      { "component": "text", "name": "auPlaceholder", "label": "Placeholder Text", "valueType": "string" }
+    ]
+  },
+  {
     "id": "programRankList",
     "fields": [
       {
@@ -4750,14 +4904,7 @@
   {
     "id": "event-listing",
     "fields": [
-      { "component": "text", "name": "title", "label": "Title", "valueType": "string", "hidden": true },
-      { "component": "number", "name": "groupId", "label": "Host ID (h_ems)", "valueType": "number"},
-      { "component": "number", "name": "eventTypeId", "label": "Event Type ID (t_ems)", "valueType": "number"},
-      { "component": "text", "name": "location", "label": "Location (l)", "valueType": "string"},
-      { "component": "text", "name": "visibilityLevel", "label": "Calendar Visibility Level", "valueType": "string"},
-      { "component": "text", "name": "visibilityApproved", "label": "Calendar Visibility Approved", "valueType": "string"},
-      { "component": "text", "name": "visbleRequested", "label": "Announcement Visibility Requested", "valueType": "string"},
-      { "component": "boolean", "name": "visibleApproved", "label": "Announcement Visibility Approved", "valueType": "boolean"}
+      { "component": "text", "name": "title", "label": "Title", "valueType": "string", "hidden": true }
     ]
   },
   {
@@ -4868,9 +5015,7 @@
   {
   "id": "service-now-article",
   "fields": [
-    { "component": "text", "name": "title", "label": "Title", "valueType": "string", "hidden": true },
     { "component": "text", "name": "serviceNowArticleNumber", "label": "ServiceNow Article Number", "valueType": "string", "required": true },
-    { "component": "richtext", "name": "apiResponse", "label": "API Response", "valueType": "string", "hidden": true },
     {
       "component": "select",
       "name": "displaySelection",
@@ -4906,6 +5051,144 @@
           { "name": "Tenleytown Red", "value": "bg-tenleytown-red-light-color" }
         ]
       }
+    ]
+  },
+  {
+    "id": "profile-listing",
+    "fields": [
+      {
+        "component": "text",
+        "name": "isGlobal",
+        "label": "Global Flag",
+        "valueType": "string",
+        "hidden": true
+      },
+      {
+        "component": "select",
+        "name": "profileVariation",
+        "label": "Variation",
+        "valueType": "string",
+        "required": true,
+        "defaultValue": "variation1",
+        "options": [
+          { "name": "Variation 1", "value": "variation1" },
+          { "name": "Variation 2", "value": "variation2" }
+        ]
+      },
+      {
+        "component": "container",
+        "valueType": "string",
+        "collapsible": false,
+        "label": "Variation 2",
+        "name": "profileVariation2",
+        "condition": { "===": [{ "var": "profileVariation" }, "variation2"] },
+        "fields": [
+          {
+            "component": "select",
+            "name": "layoutVariation",
+            "label": "Layout",
+            "valueType": "string",
+            "required": true,
+            "defaultValue": "column1",
+            "options": [
+              { "name": "One Column", "value": "column1" },
+              { "name": "Two Column", "value": "column2" }
+            ]
+          },
+          { "component": "boolean", "label": "Check to Show the Alpha Bar. Note: Enter greater value in resultsPerPage than Total results.", "name": "isAlphaBarEnabled", "valueType": "boolean" }
+        ]
+      },
+      {
+        "component": "profilecustommultifield",
+        "label": "Custom Multifield",
+        "name": "profile_filterData",
+        "valueType": "string"
+      },
+      {
+        "component": "number",
+        "valueType": "number",
+        "name": "resultPerPage",
+        "label": "Results per page:",
+        "value": 10,
+        "validation": {
+        "numberMin": 10,
+        "numberMax": 500,
+        "customErrorMsg": "Please provide the value between 10 and 50."
+        }
+      }
+    ]
+  },
+  {
+    "id": "auStylesText",
+    "fields": [
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "text",
+        "label": "Text"
+      },
+      {
+        "component": "select",
+        "name": "style_textStyle",
+        "label": "Text Style",
+        "valueType": "string",
+        "options": [
+          { "name": "Lede Text", "value": "lede" },
+          { "name": "Lede Extra Text", "value": "lede-extra" },
+          { "name": "Subhead", "value": "subhead" }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "we-know-success-mini",
+    "fields": [
+      { "component": "text", "name": "isGlobal", "label": "Global Flag", "valueType": "string", "hidden": true },
+      { "component": "text", "name": "heading", "label": "Heading", "valueType": "string"},
+      { "component": "select", "valueType": "string", "name": "defaultLevel", "label": "Default Level", "defaultValue": "UG", "required": true, "options": [
+        { "name": "Undergraduate", "value": "UG" },
+        { "name": "Graduate", "value": "GR" },
+        { "name": "Doctoral", "value": "PHD" }
+      ] },
+      { "component": "select", "valueType": "string", "name": "defaultSchool", "label": "Default School", "required": false, "options": [
+        { "name": "CAS", "value": "cas" },
+        { "name": "KOGOD", "value": "kogod" },
+        { "name": "SIS", "value": "sis" },
+        { "name": "SOC", "value": "soc" },
+        { "name": "SOE", "value": "soe" },
+        { "name": "SPA", "value": "spa" }
+      ] },
+      { "component": "text", "valueType": "string", "name": "defaultProgram", "label": "Default Program", "value": "", "required": false, "description": "Enter the 3-4 letter Program Code for the Default Program (i.e. ACCT for Accounting)" },
+      { "component": "boolean", "name": "showPhds", "label": "Show PhDs in level dropdown", "valueType": "boolean", "value": false, "required": false, "description": "If checked, please enter information in the Doctoral Info box below."},
+      { "component": "richtext", "name": "doctoralInfo", "value": "", "label": "Doctoral Info", "valueType": "string", "required": false, "condition": { "===": [{ "var": "showPhds" }, true] }, "description": "Enter information about doctoral programs to display when Doctoral is selected in the level dropdown. Replaces Stats and Top Employers / Where Graduates Land / Top Internships for Credit." }
+
+    ]
+  },
+
+  {
+    "id": "we-know-success-micro",
+    "fields": [
+      { "component": "text", "name": "isGlobal", "label": "Global Flag", "valueType": "string", "hidden": true },
+      { "component": "select", "valueType": "string", "name": "level", "label": "Level", "defaultValue": "UG", "required": true, "options": [
+        { "name": "Undergraduate", "value": "UG" },
+        { "name": "Graduate", "value": "GR" },
+        { "name": "Doctoral", "value": "PHD" }
+      ] },
+      { "component": "select", "valueType": "string", "name": "School", "label": "School", "required": true, "defaultValue": "allSchools", "options": [
+        { "name": "All Schools", "value": "allSchools" },
+        { "name": "CAS", "value": "cas" },
+        { "name": "KOGOD", "value": "kogod" },
+        { "name": "SIS", "value": "sis" },
+        { "name": "SOC", "value": "soc" },
+        { "name": "SOE", "value": "soe" },
+        { "name": "SPA", "value": "spa" }
+      ] },
+      { "component": "text", "valueType": "string", "name": "defaultProgram", "label": "Default Program", "value": "", "required": false, "description": "Enter the 3-4 letter Program Code for the Default Program (i.e. ACCT for Accounting). Blank value will display data for all" },
+      { "component": "select", "valueType": "string", "name": "dataToDisplay", "label": "Data to Display", "defaultValue": "employers", "required": true, "options": [
+        { "name": "Top Employers", "value": "employers" },
+        { "name": "Working, Grad School, or Both", "value": "whereGradsLand" },
+        { "name": "Participated In Internship", "value": "internship" }
+      ] }
     ]
   }
 ]

@@ -46,7 +46,7 @@ function createNewsListingPayload(multifieldData, resultsPerPage) {
   const currentPath = window.location.pathname;
   const isMagazinePage = currentPath.startsWith('/magazine') || currentPath.includes('/magazine');
   return {
-    rootPath: isMagazinePage ? '/content/dam/au/cf/magazine-article-list' : '/content/dam/au/cf/news',
+    rootPath: isMagazinePage ? '/content/dam/au/cf/magazine-articles' : '/content/dam/au/cf/news',
     'cq:tags': parsedData['cq:tags'] || [],
     condition: parsedData.condition || '',
     fields: parsedData.fields || [],
@@ -178,6 +178,8 @@ export default async function decorate(block) {
   let resultsPerPage = parseInt(resultsPerPageInput, 10);
   if (Number.isNaN(resultsPerPage) || resultsPerPage <= 0) resultsPerPage = 10;
   const payLoad = createNewsListingPayload(multifieldData, resultsPerPage);
+  const cfModelPath = isMagazineRoot ? '/conf/au/settings/dam/cfm/models/magazine-article-model' : '/conf/au/settings/dam/cfm/models/news-article-model';
+  payLoad.cqModelPath = cfModelPath;
   const params = new URLSearchParams(window.location.search);
   const page = params.get('page');
   const pageNum = parseInt(page, 10) || 1;

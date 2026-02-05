@@ -14,30 +14,18 @@ function loadCssOnce(href, dataAttr = 'data-breadcrumb-mobile') {
 
 export function waitForHeaderBlock(timeout = 5000) {
   return new Promise((resolve, reject) => {
-    const header = document.querySelector('body > header');
-    if (!header) {
-      reject(new Error('<header> not found in DOM'));
-      return;
-    }
-    let block = header.querySelector('.header.block');
-    if (block) {
-      resolve(block);
-      return;
-    }
     const observer = new MutationObserver(() => {
-      block = header.querySelector('.header.block');
-      if (block) {
+      if (document.body.getAttribute('data-header-loaded') === 'true') {
         observer.disconnect();
-        resolve(block);
+        resolve(document.querySelector('body > header > div.header.block'));
       }
     });
-    observer.observe(header, {
-      childList: true,
-      subtree: true,
+    observer.observe(document.body, {
+      attributes: true,
     });
     setTimeout(() => {
       observer.disconnect();
-      reject(new Error('Header block not found within timeout'));
+      reject(new Error('Header block not ready within timeout'));
     }, timeout);
   });
 }

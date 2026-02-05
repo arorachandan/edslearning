@@ -138,6 +138,23 @@ function renderPolicyDetail(policyData) {
   return container;
 }
 
+function renderAlertDetail(policyData, message) {
+  const container = document.createElement('div');
+  container.className = 'policy-detail';
+
+  // Heading
+  const h1 = document.createElement('h1');
+  h1.innerHTML = `<small>${policyData.policyCategory ? policyData.policyCategory : ''}</small> 
+                  <span itemprop="headline name">${policyData.title ? policyData.title : ''}</span>`;
+
+  const alertDiv = document.createElement('div');
+  alertDiv.className = 'alert alert-info single';
+  alertDiv.innerHTML = `<div><p>${message}</p></div>`;
+  container.appendChild(h1);
+  container.appendChild(alertDiv);
+  return container;
+}
+
 function labelPolicyData(dataArray) {
   return {
     title: dataArray[0] || '',
@@ -182,9 +199,7 @@ export default function decorate(block) {
   blockElement.className = 'policy';
 
   if (labeledData.isActive && labeledData.isActive.toLowerCase() === 'inactive') {
-    const alertDiv = document.createElement('div');
-    alertDiv.className = 'alert alert-info single';
-    alertDiv.innerHTML = '<div><p>The policy is currently being updated. Please check again later.</p></div>';
+    const alertDiv = renderAlertDetail(labeledData, 'The policy is currently being updated. Please check again later.');
     blockElement.appendChild(alertDiv);
   } else {
     const policyDetail = renderPolicyDetail(labeledData);

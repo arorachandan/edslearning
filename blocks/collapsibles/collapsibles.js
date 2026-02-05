@@ -1,5 +1,6 @@
 import { moveInstrumentation } from '../../scripts/scripts.js';
 import { buildTitleWithTitleTypes } from '../../scripts/util.js';
+import createDataLayerEvent from '../../scripts/analytics-util.js';
 
 // This method is to extract fields from collapsible blocks
 function extractCollapsibleBlocksFields(collapseBlock) {
@@ -123,4 +124,16 @@ export default function decorate(block) {
   });
 
   block.append(collapseBlockParent);
+
+  // Track collapsible opening
+  const ctas = block.querySelectorAll('h2');
+  ctas.forEach((cta) => {
+    createDataLayerEvent('click', 'click', () => ({
+      linkName: cta.textContent.trim(),
+      linkType: 'cta',
+      linkRegion: 'main',
+      componentName: 'Collapsible',
+      componentId: 'collapsible',
+    }), cta);
+  });
 }

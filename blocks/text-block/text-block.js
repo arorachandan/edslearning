@@ -1,3 +1,5 @@
+import createDataLayerEvent from '../../scripts/analytics-util.js';
+// Padding field no longer in use; retained for backward compatibility.
 function fetchBlockData(block) {
   const data = {
     title: '',
@@ -158,4 +160,15 @@ export default function decorate(block) {
 
   const dom = createBlockDOM(data);
   block.appendChild(dom);
+
+  const ulLinks = block.querySelectorAll('a[href]');
+  ulLinks.forEach((cta) => {
+    createDataLayerEvent('click', 'click', () => ({
+      linkName: cta.textContent.trim(),
+      linkType: 'cta',
+      linkRegion: 'main',
+      componentName: 'Text Block',
+      componentId: 'text-block',
+    }), cta);
+  });
 }

@@ -1,4 +1,6 @@
+/* eslint-disable no-restricted-globals */
 import { moveInstrumentation } from './scripts.js';
+import { BROWSE_MAP } from './constants.js';
 /* eslint-disable max-len */
 /**
  * Creates DOM element using provided params and returns the created element.
@@ -279,7 +281,7 @@ export async function fetchSpreadsheetData(dropdownListPath) {
       throw new Error('Invalid spreadsheet JSON format');
     }
 
-    // ✅ Auto-map every key in item exactly as provided
+    // Auto-map every key in item exactly as provided
     const formattedData = jsonData.data.map((item) => {
       const mapped = {};
 
@@ -307,4 +309,92 @@ export async function fetchSpreadsheetData(dropdownListPath) {
       ':type': 'sheet',
     };
   }
+}
+
+export async function getCsrfToken() {
+  const response = await fetch('/libs/granite/csrf/token.json');
+  const json = await response.json();
+  return json.token;
+}
+
+export async function getDateFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('d');
+}
+
+export async function updateUrlWithDate(dateStr) {
+  const url = new URL(window.location.href);
+  url.searchParams.set('d', dateStr);
+  window.history.pushState({}, '', url.toString());
+}
+
+export async function updateUrlWithDateOnly(date) {
+  const url = new URL(window.location.href);
+
+  url.searchParams.set('d', date);
+  url.searchParams.delete('browse');
+  url.searchParams.delete('show');
+
+  history.pushState({}, '', url);
+}
+
+export function updateUrlWithBrowseOnly(type, showAll = false) {
+  const url = new URL(window.location.href);
+
+  url.searchParams.delete('d');
+
+  url.searchParams.delete('browse');
+  url.searchParams.delete('show');
+  ['h', 't', 'l', 's'].forEach((p) => url.searchParams.delete(p));
+
+  if (type && BROWSE_MAP[type]) {
+    url.searchParams.set('browse', BROWSE_MAP[type]);
+  }
+
+  if (showAll) {
+    url.searchParams.set('show', 'all');
+  }
+
+  history.pushState({}, '', url);
+}
+
+export function getShowAllFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('show') === 'all';
+}
+
+export async function persistSelectedDate(dateStr) {
+  sessionStorage.setItem('selectedCalendarDate', dateStr);
+}
+
+export async function getPersistedDate() {
+  return sessionStorage.getItem('selectedCalendarDate');
+}
+
+export function resolveInitialDate() {
+  const params = new URLSearchParams(window.location.search);
+  const urlDate = params.get('d');
+
+  if (urlDate && /^\d{4}-\d{2}-\d{2}$/.test(urlDate)) {
+    return urlDate;
+  }
+
+  return new Date().toISOString().split('T')[0];
+}
+
+export function updateUrlWithSelectedId(type, id) {
+  const url = new URL(window.location.href);
+  const params = url.searchParams;
+
+  params.delete('browse');
+  params.delete('show');
+
+  ['h', 't', 'l', 's'].forEach((p) => params.delete(p));
+
+  if (type === 'host') params.set('h', id);
+  if (type === 'eventType') params.set('t', id);
+  if (type === 'location') params.set('l', id);
+  if (type === 'series') params.set('s', id);
+
+  history.pushState({}, '', url);
 }

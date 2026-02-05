@@ -1,6 +1,7 @@
 import { createOptimizedPicture, getMetadata } from '../../scripts/aem.js';
 import { loadFragment } from '../fragment/fragment.js';
 import { fetchFooterData } from '../../scripts/graphql-api.js';
+import createDataLayerEvent from '../../scripts/analytics-util.js';
 
 function appendAddress(addressTextLine1, addressTextLine2) {
   const addAddresss = document.createElement('address');
@@ -152,7 +153,7 @@ function appendLogo(pictureTag) {
 
 function buildGlobalFooter(data, pictureTag, bgColor, isHomePage) {
   const footer = document.createElement('footer');
-  footer.className = 'footer-continer';
+  footer.className = 'footer-container';
   footer.id = 'site-footer';
   footer.setAttribute('role', 'contentinfo');
   if (bgColor.bgColorClass === 'bg-custom-color' && bgColor.customColorCode) {
@@ -210,6 +211,19 @@ function buildGlobalFooter(data, pictureTag, bgColor, isHomePage) {
   row.appendChild(col1);
   row.appendChild(col2);
   row.appendChild(col3);
+  // Add footer-based back-to-top button
+  const backToTopAlt = document.createElement('a');
+  backToTopAlt.href = '#main-container';
+  backToTopAlt.title = 'Back to top';
+  backToTopAlt.className = 'button back-to-top-footer';
+
+  backToTopAlt.innerText = 'Back to top';
+
+  const icon = document.createElement('span');
+  icon.className = 'ion-chevron-up';
+  backToTopAlt.appendChild(icon);
+
+  row.appendChild(backToTopAlt);
   footer.appendChild(row);
   return footer;
 }
@@ -328,4 +342,27 @@ export default async function decorate(block) {
   }
 
   block.appendChild(footerDom);
+
+  const ulLinks = block.querySelectorAll('.clearfix a[href], .policies a[href]');
+  ulLinks.forEach((cta) => {
+    createDataLayerEvent('click', 'click', () => ({
+      linkName: cta.textContent.trim(),
+      linkType: 'cta',
+      linkRegion: 'footer',
+      componentName: 'Footer',
+      componentId: 'footer',
+    }), cta);
+  });
+
+  // Track all social links in footer
+  const ctas = block.querySelectorAll('.social a[href]');
+  ctas.forEach((cta) => {
+    createDataLayerEvent('click', 'socialClick', () => ({
+      network: cta.textContent.toLowerCase(),
+      linkURL: cta.href,
+      placement: 'footer',
+      componentName: 'Footer',
+      componentId: 'footer',
+    }), cta);
+  });
 }

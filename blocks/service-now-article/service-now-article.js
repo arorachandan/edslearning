@@ -1,46 +1,19 @@
 import { SERVER_URL } from '../../scripts/constants.js';
 
-function decodeHtml(html) {
-  const txt = document.createElement('textarea');
-  txt.innerHTML = html;
-  return txt.value;
-}
-
 function extractData(block) {
-  const rows = [...block.children];
-  const data = {};
-
-  rows.forEach((row) => {
-    if (row.children.length < 2) return;
-
-    const key = row.children[0].textContent.trim();
-    const valueCell = row.children[1];
-
-    if (!key || !valueCell) return;
-
-    if (key === 'apiResponse') {
-      let html = '';
-
-      [...valueCell.children].forEach((child) => {
-        if (child.tagName === 'P') {
-          html += decodeHtml(child.textContent);
-        }
-      });
-
-      data.apiResponse = html;
-    } else {
-      data[key] = valueCell.textContent.trim();
-    }
-  });
+  const [serviceNowArticleNumberObj, displaySelectionObj, colorObj] = block.children;
+  const serviceNowArticleNumber = serviceNowArticleNumberObj ? serviceNowArticleNumberObj.querySelector('p')?.innerHTML.trim() : '';
+  const displaySelection = displaySelectionObj ? displaySelectionObj.querySelector('p')?.innerHTML.trim() : '';
+  const color = colorObj ? colorObj.querySelector('p')?.innerHTML.trim() : '';
 
   return {
-    articleNumbers: data.serviceNowArticleNumber
+    articleNumbers: serviceNowArticleNumber
       ?.split(',')
       .map((v) => v.trim())
       .filter(Boolean),
-    apiResponse: data.apiResponse,
-    displaySelection: data.displaySelection,
-    color: data.color,
+
+    displaySelection,
+    color,
   };
 }
 

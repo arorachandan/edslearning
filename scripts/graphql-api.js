@@ -28,33 +28,32 @@ async function fetchGraphQLData(queryName, path) {
   }
 }
 
-async function fetchCalendarGQL(queryName, eventStartDate, eventEndDate, visibilityLevel, visibilityApproved, date, visbleRequested, visibleApproved, groupId, eventTypeId, location) {
+async function fetchCalendarGQL(queryName, eventStartDate, eventEndDate, visibilityLevel, visibilityApproved, date, visbleRequested, visibleApproved, eventTypeId, locationId, seriesId) {
   try {
     const cacheBuster = `_cb=${Date.now()}`;
+    const paramParts = [];
 
-    const paramParts = [
-      `eventStart%3D${encodeURIComponent(eventStartDate)}`,
-      `eventEnd%3D${encodeURIComponent(eventEndDate)}`,
-      `visibilityLevel%3D${encodeURIComponent(visibilityLevel)}`,
-      `visibilityApproved%3D${encodeURIComponent(visibilityApproved)}`,
-      `date%3D${encodeURIComponent(date)}`,
-      `visbleRequested%3D${encodeURIComponent(visbleRequested)}`,
-      `visibleApproved%3D${encodeURIComponent(visibleApproved)}`,
-    ];
+    const addParam = (key, value) => {
+      if (value !== null && value !== undefined && value !== '') {
+        paramParts.push(`${key}%3D${encodeURIComponent(value)}`);
+      }
+    };
 
-    if (groupId != null && groupId !== '') {
-      paramParts.push(`groupId%3D${encodeURIComponent(groupId)}`);
-    }
-    if (eventTypeId != null && eventTypeId !== '') {
-      paramParts.push(`eventTypeId%3D${encodeURIComponent(eventTypeId)}`);
-    }
-    if (location != null && location !== '') {
-      paramParts.push(`location%3D${encodeURIComponent(location)}`);
-    }
+    addParam('eventStart', eventStartDate);
+    addParam('eventEnd', eventEndDate);
+    addParam('visibilityLevel', visibilityLevel);
+    addParam('visibilityApproved', visibilityApproved);
+    addParam('date', date);
+    addParam('visbleRequested', visbleRequested);
+    addParam('visibleApproved', visibleApproved);
+    addParam('eventTypeId', eventTypeId);
+    addParam('roomId', locationId);
+    addParam('eventSeriesId', seriesId);
 
-    const paramString = paramParts.length > 0 ? `%3B${paramParts.join('%3B')}` : '';
+    const paramString = paramParts.length ? `%3B${paramParts.join('%3B')}` : '';
 
-    const GRAPHQL_ENDPOINT_PATH = `${GRAPHQL_ENDPOINT}/${queryName}${paramString}?${cacheBuster}`;
+    const GRAPHQL_ENDPOINT_PATH = `${GRAPHQL_ENDPOINT}/${queryName}${paramString}%3B?${cacheBuster}`;
+
     const response = await fetch(GRAPHQL_ENDPOINT_PATH, {
       method: 'GET',
       headers: {
@@ -153,8 +152,15 @@ export async function fetchComponentData(name, path) {
   return result;
 }
 
-export async function fetchCalendarData(name, eventStartDate, eventEndDate, visibilityLevel, visibilityApproved, date, visbleRequested, visibleApproved, groupId, eventTypeId, location) {
-  const { data, error } = await fetchCalendarGQL(name, eventStartDate, eventEndDate, visibilityLevel, visibilityApproved, date, visbleRequested, visibleApproved, groupId, eventTypeId, location);
+export async function fetchCalendarData(name, eventStartDate, eventEndDate, visibilityLevel, visibilityApproved, date, visbleRequested, visibleApproved, eventTypeId, locationId, seriesId) {
+  const { data, error } = await fetchCalendarGQL(name, eventStartDate, eventEndDate, visibilityLevel, visibilityApproved, date, visbleRequested, visibleApproved, eventTypeId, locationId, seriesId);
+  if (error) return { data: null };
+  const result = data.data || null;
+  return result;
+}
+
+export async function fetchFilters(name, eventStartDate, eventEndDate, visibilityLevel, visibilityApproved) {
+  const { data, error } = await fetchCalendarGQL(name, eventStartDate, eventEndDate, visibilityLevel, visibilityApproved);
   if (error) return { data: null };
   const result = data.data || null;
   return result;

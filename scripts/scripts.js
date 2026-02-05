@@ -13,7 +13,35 @@ import {
   loadCSS,
   loadScript,
 } from './aem.js';
+// eslint-disable-next-line import/no-duplicates
 import createAdobeDataLayer from './analytics-util.js';
+// eslint-disable-next-line import/no-duplicates
+import createDataLayerEvent from './analytics-util.js';
+
+export function getConfig(block, { removeRows = true } = {}) {
+  const config = {};
+  const rows = [...block.children];
+
+  rows.forEach((row, index) => {
+    const p = row.querySelector('p');
+    const value = p?.textContent?.trim();
+
+    if (!value) {
+      if (removeRows) {
+        row.remove();
+      }
+      return;
+    }
+
+    config[index] = value;
+
+    if (removeRows) {
+      row.remove();
+    }
+  });
+
+  return config;
+}
 
 /**
  * Moves all the attributes from a given elmenet to another given element.
@@ -236,8 +264,75 @@ function buildAutoBlocks(main) {
   }
 }
 
-function initAdobeDataLayer() {
+function initAdobeDataLayer(main) {
   createAdobeDataLayer('load', 'pageview', () => ({}), window);
+
+  // Helper function to get component info from link's closest block
+  function getLinkEventInfo(link) {
+    // Find the closest block with data-block-name
+    const block = link.closest('[data-block-name]');
+    let componentName = 'Link';
+    let componentId = 'link';
+
+    if (block) {
+      componentId = block.dataset.blockName;
+      // Convert kebab-case to Title Case (quick-links → Quick Links)
+      componentName = componentId
+        .split('-')
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+    }
+
+    // Determine link region
+    let linkRegion = 'main';
+
+    // Check for hero -> nav -> sidebar
+    if (link.closest('.hero-container')
+        || link.closest('[class*="hero"]')
+        || link.closest('.tier3header-container')) {
+      linkRegion = 'hero';
+    } else if (link.closest('nav')) {
+      linkRegion = 'nav';
+    } else if (link.closest('.left-rail-sections-wrapper') || link.closest('.left-rail')) {
+      linkRegion = 'sidebar';
+    } else if (link.closest('.right-rail')) {
+      linkRegion = 'sidebar';
+    }
+
+    return {
+      componentName,
+      componentId,
+      linkRegion,
+    };
+  }
+
+  // Helper function to attach listeners
+  function attachLinkListeners() {
+    const allLinks = main.querySelectorAll('a[href]');
+    allLinks.forEach((link) => {
+      if (!link.dataset.adobeTracked) {
+        link.dataset.adobeTracked = 'true';
+
+        const { componentName, componentId, linkRegion } = getLinkEventInfo(link);
+
+        createDataLayerEvent('click', 'click', () => ({
+          linkName: link.textContent.trim(),
+          linkURL: link.href,
+          linkType: 'cta',
+          linkRegion,
+          componentName,
+          componentId,
+        }), link);
+      }
+    });
+  }
+
+  // Watch for new links being added
+  const observer = new MutationObserver(() => attachLinkListeners());
+  observer.observe(main, { childList: true, subtree: true });
+
+  // Attach to existing links immediately
+  attachLinkListeners();
 }
 
 /**
@@ -254,7 +349,7 @@ export function decorateMain(main) {
   decorateBlocks(main);
   addContentSectionsWrapper(main);
   decorateCollapsibleSections(main);
-  initAdobeDataLayer();
+  initAdobeDataLayer(main);
 }
 
 /**

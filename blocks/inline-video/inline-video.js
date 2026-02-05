@@ -11,23 +11,65 @@ function makeVimeoPlayer(tries, videoId, playerId) {
   }
 }
 
-// Creates Youtube Player using Youtube iFrame API
-function makeYTPlayer(tries, videoId, playerId) {
+// Creates Youtube Player using Youtube iFrame API with analytics tracking
+function makeYTPlayer(tries, videoId, playerId, videoName) {
   if (typeof YT !== 'undefined' || tries > 100) {
     // eslint-disable-next-line no-undef
     YT.ready(() => {
+      let lastMilestone = 0;
+
       // eslint-disable-next-line no-undef, no-new
-      new YT.Player(playerId, {
+      const player = new YT.Player(playerId, {
         videoId,
         playerVars: {
           playsinline: 1,
         },
       });
+
+      // Track quartiles (25%, 50%, 75%, 100%)
+      setInterval(() => {
+        try {
+          if (player && typeof player.getPlayerState === 'function') {
+            if (player.getPlayerState() === window.YT.PlayerState.PLAYING) {
+              const videoDuration = player.getDuration();
+              const currentTime = player.getCurrentTime();
+              const percentComplete = Math.round((currentTime / videoDuration) * 100);
+
+              [25, 50, 75, 100].forEach((milestone) => {
+                if (percentComplete >= milestone && lastMilestone < milestone) {
+                  lastMilestone = milestone;
+
+                  if (window.adobeDataLayer) {
+                    window.adobeDataLayer.push({
+                      event: 'video',
+                      eventInfo: {
+                        action: 'play',
+                        videoTitle: player.videoTitle,
+                        provider: 'youtube',
+                        percent: milestone,
+                      },
+                      page: {
+                        name: document.title,
+                        url: window.location.href,
+                        referrer: document.referrer,
+                        language: document.documentElement.lang,
+                      },
+                    });
+                  }
+                }
+              });
+            }
+          }
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.error('Video tracking error:', error);
+        }
+      }, 1000);
     });
   } else {
     // If iFrame API is not ready, recursively call after delay
     const newTries = tries + 1;
-    setTimeout(() => { makeYTPlayer(newTries, videoId, playerId); }, 100);
+    setTimeout(() => { makeYTPlayer(newTries, videoId, playerId, videoName); }, 100);
   }
 }
 

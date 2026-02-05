@@ -80,10 +80,9 @@ function createSeeMoreModalFromProvidedDOM(btn1, btn2, btn3) {
   const items = authored.slice(0, 2);
   if (!items.length) return;
 
-  const mainElement = document.querySelector('main#main-container') || document.querySelector('#main-container');
-  if (!mainElement) return;
-
-  mainElement.querySelector('ul.tier-3-cta.fixed-bottom')?.remove();
+  const navElement = document.querySelector('nav#new-nav') || document.querySelector('#new-nav');
+  if (!navElement) return;
+  navElement.querySelector('ul.tier-3-cta.fixed-bottom')?.remove();
 
   const ul = document.createElement('ul');
   ul.className = 'tier-3-cta fixed-bottom';
@@ -127,7 +126,7 @@ function createSeeMoreModalFromProvidedDOM(btn1, btn2, btn3) {
     }
   });
 
-  mainElement.appendChild(ul);
+  navElement.appendChild(ul);
 }
 function createCTA(CTA1Obj, CTA2Obj, chatBtnObj) {
   const ulTag = createDomElement('ul', 'tier-3-cta');

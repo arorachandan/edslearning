@@ -1,4 +1,5 @@
 import { fetchSpreadsheetData } from '../../scripts/util.js';
+import { SERVER_URL } from '../../scripts/constants.js';
 
 // ========== EXTRACT ==========
 function fetchNominationFormConfig(block) {
@@ -312,12 +313,13 @@ export default async function decorate(block) {
     try {
       const isAuthor = /^author-p\d+-e\d+\.adobeaemcloud\.com$/.test(window.location.hostname);
       const headers = {};
-
+      let serverUrl = SERVER_URL;
       if (isAuthor) {
         headers['CSRF-Token'] = await getCsrfToken();
+        serverUrl = window.location.origin;
       }
 
-      const response = await fetch('/bin/nomination/submit', {
+      const response = await fetch(`${serverUrl}/bin/nomination/submit`, {
         method: 'POST',
         headers,
         body: formData,

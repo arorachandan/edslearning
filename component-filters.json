@@ -101,7 +101,12 @@
       "au-experts-search-results",
       "emergency-notification",
       "emergency-notification-details",
-      "service-now-article"
+      "service-now-article",
+      "student-checklist",
+      "profile-listing",
+      "auStylesText",
+      "we-know-success-mini",
+      "we-know-success-micro"
     ]
   },
   {
@@ -255,7 +260,10 @@
       "description-list",
       "table",
       "event-listing",
-      "service-now-article"
+      "service-now-article",
+      "auStylesText",
+      "we-know-success-mini",
+      "we-know-success-micro"
     ]
   },
   {
@@ -330,7 +338,8 @@
       "htmlEmbed",
       "description-list",
       "table",
-      "calendar"
+      "calendar",
+      "auStylesText"
     ]
   },
   {
@@ -405,7 +414,13 @@
       "htmlEmbed",
       "description-list",
       "table",
-      "magazineIssue"
+      "magazineIssue",
+      "calendar",
+      "calendar-search",
+      "event-listing",
+      "auStylesText",
+      "we-know-success-mini",
+      "we-know-success-micro"
     ]
   },
   {
@@ -488,7 +503,18 @@
       "magazineHeader",
       "emergency-notification",
       "emergency-notification-details",
-      "service-now-article"
+      "service-now-article",
+      "calendar-search",
+      "student-checklist",
+      "dropForm",
+      "miniDropForm",
+      "nomination-form",
+      "cediplomaValidationForm",
+      "directory-form",
+      "textSearchForm",
+      "auStylesText",
+      "we-know-success-mini",
+      "we-know-success-micro"
     ]
   },
   {
@@ -571,7 +597,20 @@
       "magazineHeader",
       "emergency-notification",
       "emergency-notification-details",
-      "service-now-article"
+      "service-now-article",
+      "calendar-search",
+      "student-checklist",
+      "dropForm",
+      "miniDropForm",
+      "nomination-form",
+      "cediplomaValidationForm",
+      "directory-form",
+      "textSearchForm",
+      "calendar-search",
+      "calendar",
+      "auStylesText",
+      "we-know-success-mini",
+      "we-know-success-micro"
     ]
   },
   {
@@ -650,7 +689,10 @@
       "cediplomaValidationForm",
       "miniDropForm",
       "nomination-form",
-      "textSearchForm"
+      "textSearchForm",
+      "auStylesText",
+      "we-know-success-mini",
+      "we-know-success-micro"
     ]
   },
   {

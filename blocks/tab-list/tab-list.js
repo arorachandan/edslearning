@@ -1,4 +1,5 @@
 import { toClassName } from '../../scripts/aem.js';
+import createDataLayerEvent from '../../scripts/analytics-util.js';
 
 let tabsIdx = 0;
 const MOBILE_MAX = 600;
@@ -303,6 +304,33 @@ export default async function decorate(block) {
   contentBox.appendChild(tabListContainer);
   tabPanels.forEach(([, panel]) => contentBox.appendChild(panel));
   block.replaceChildren(contentBox);
+
+  // Data analytics layer attach after all links loaded
+  setTimeout(() => {
+    const allLinks = block.querySelectorAll('a[href]');
+    allLinks.forEach((link) => {
+      createDataLayerEvent('click', 'tabClick', () => ({
+        linkName: link.textContent.trim(),
+        linkURL: link.href,
+        linkType: 'cta',
+        linkRegion: 'main',
+        componentName: 'Tab List',
+        componentId: 'tab-list',
+      }), link);
+    });
+  }, 300);
+
+  const allTabs = block.querySelectorAll('li > button[role="tab"]');
+  allTabs.forEach((link) => {
+    createDataLayerEvent('click', 'tabClick', () => ({
+      linkName: link.textContent.trim(),
+      linkURL: link.href,
+      linkType: 'cta',
+      linkRegion: 'main',
+      componentName: 'Tab List',
+      componentId: 'tab-list',
+    }), link);
+  });
 
   // Initial layout/setup
   const init = () => {
