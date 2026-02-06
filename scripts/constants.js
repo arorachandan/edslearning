@@ -1,5 +1,5 @@
 const GRAPHQL_ENDPOINT = 'https://publish-p153273-e1586163.adobeaemcloud.com/graphql/execute.json/au';
-const SERVER_URL = 'https://publish-p153273-e1586163.adobeaemcloud.com';
+const SERVER_URL = 'http://localhost:4502';
 const CAPTCHA_SITE_KEY = '6LfdPSgUAAAAAKUbTSQX3u3EUMcwhisBS05rZ74u';
 const BROWSE_MAP = {
   host: 'h',

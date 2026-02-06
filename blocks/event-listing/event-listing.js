@@ -1405,7 +1405,6 @@ function ensureEmailModal() {
             <input type="hidden" name="title" id="emailEventTitle">
             <input type="hidden" name="eURL" id="emailEventUrl">
             <input type="hidden" name="eventDate" id="emailEventDate">
-            <input type="hidden" name="eInfo" value="02/03/2026#event-5424397">
             <fieldset>
               <div class="form-group">
                 <label>Your email:</label>
